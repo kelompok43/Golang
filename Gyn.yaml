@@ -1,0 +1,286 @@
+openapi: 3.0.0
+info:
+  version: "1.0"
+  title: Blank
+  description: Blank
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/G2731/GymMembership/1.0
+
+tags:
+  - name: User
+  - name: Auth
+
+paths:
+  "/user":
+    get:
+      summary: Get all User
+      security:
+        - jwtUser: []
+      tags:
+        - User
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/200success"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserObj"
+
+        "400":
+          $ref: "#/components/responses/400badrequest"
+  "/user/register":
+    post:
+      summary: Register User
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserReqBody"
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/200success"
+        "400":
+          $ref: "#/components/responses/400badrequest"
+
+  "/admin/register":
+    post:
+      summary: Regiseter Admin
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminReqBody"
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/200success"
+        "400":
+          $ref: "#/components/responses/400badrequest"
+
+  "/user/login":
+    post:
+      summary: Login For User
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginReqBody"
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/200success"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            example: "TokenForLoginNafs12plkd92m"
+        "400":
+          $ref: "#/components/responses/400badrequest"
+
+  "/admin/login":
+    post:
+      summary: Login For User
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginReqBody"
+      responses:
+        "200":
+          description: success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/200success"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          token:
+                            type: string
+                            example: "TokenForLoginNafs12plkd92m"
+        "400":
+          $ref: "#/components/responses/400badrequest"
+
+components:
+  securitySchemes:
+    jwtUser:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    jwtAdmin:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    UserLoginReqBody:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "Budi1"
+        password:
+          type: string
+          example: "passwordBudi"
+
+    AdminLoginReqBody:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "OperationalAdmin"
+        password:
+          type: string
+          example: "PasswordAdmin"
+
+    AdminReqBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Admin1"
+        username:
+          type: string
+          example: "UserAdmin"
+        password:
+          type: string
+          example: "PaswordUser"
+        email:
+          type: string
+          example: "emailAdmin@gmail.com"
+        phone:
+          type: string
+          example: "08134455884"
+
+    UserReqBody:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: "budi2"
+        username:
+          type: string
+          example: "budi2"
+        password:
+          type: string
+          example: "Passwordbudi2"
+        email:
+          type: string
+          example: "budi2@gmail.com"
+        phone:
+          type: string
+          example: "0812345678"
+        addres:
+          type: string
+          example: "rumahbudi2"
+        gender:
+          type: string
+          enum:
+            - "Pria"
+            - "Wanita"
+          example: "Pria"
+        membership_id:
+          type: string
+          example: 1
+
+    UserObj:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "budi"
+        username:
+          type: string
+          example: "budi1"
+        email:
+          type: string
+          example: "budi@gmail.com"
+        phone:
+          type: string
+          example: "0812345678"
+        addres:
+          type: string
+          example: "rumahbudi"
+        gender:
+          type: string
+          example: "Pria"
+        membership_id:
+          type: string
+          example: 1
+        created_at:
+          type: string
+          example: "2022-05-03T00:00:00"
+        updated_at:
+          type: string
+          example: "2022-05-03T00:00:00"
+        deleted_at:
+          type: string
+          example: "2022-05-03T00:00:00"
+
+    200success:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "success"
+        rescode:
+          type: number
+          example: 200
+
+  responses:
+    400badrequest:
+      description: User Failuer
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Bad Request, User Failure"
+              rescode:
+                type: number
+                example: 400
