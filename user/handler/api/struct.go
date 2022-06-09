@@ -1,6 +1,7 @@
 package handlerAPI
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/kelompok43/Golang/user/domain"
@@ -39,6 +40,12 @@ type ResponseJSON struct {
 }
 
 func fromDomain(domain domain.User) ResponseJSON {
+	//parse unix timestamp to time.Time
+	intCreatedAt, _ := strconv.Atoi(domain.CreatedAt)
+	tmCreatedAt := time.UnixMilli(int64(intCreatedAt))
+	intUpdatedAt, _ := strconv.Atoi(domain.UpdatedAt)
+	tmUpdatedAt := time.UnixMilli(int64(intUpdatedAt))
+
 	return ResponseJSON{
 		Id:        domain.ID,
 		Name:      domain.Name,
@@ -48,7 +55,7 @@ func fromDomain(domain domain.User) ResponseJSON {
 		Address:   domain.Address,
 		Gender:    domain.Gender,
 		Status:    domain.Status,
-		CreatedAt: domain.CreatedAt,
-		UpdatedAt: domain.UpdatedAt,
+		CreatedAt: tmCreatedAt,
+		UpdatedAt: tmUpdatedAt,
 	}
 }

@@ -25,6 +25,8 @@ func main() {
 
 	e := echo.New()
 
+	e.GET("/user", user.GetAllData)
+	e.GET("/user/:id", user.GetByID)
 	e.POST("/user/register", user.Register)
 
 	e.Start(":9700")
