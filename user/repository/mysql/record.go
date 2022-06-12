@@ -24,8 +24,10 @@ type UserDetail struct {
 	Phone     string
 	Address   string
 	Gender    string
-	CreatedAt string `gorm:"autoCreateTime:false"`
-	UpdatedAt string `gorm:"autoCreateTime:false"`
+	CreatedAt string
+	UpdatedAt string
+	// CreatedAt string `gorm:"autoCreateTime:false"`
+	// UpdatedAt string `gorm:"autoCreateTime:false"`
 }
 
 type joinResult struct {

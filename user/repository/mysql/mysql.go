@@ -12,6 +12,90 @@ type userRepository struct {
 	DB *gorm.DB
 }
 
+// Update implements domain.Repository
+func (ur userRepository) Update(domain domain.User) (userObj domain.User, err error) {
+	var newRecord User
+	var newDetailRecord UserDetail
+	rec := fromDomainToUser(domain)
+	err = ur.DB.Model(&newRecord).Where("id = ?", domain.ID).Updates(map[string]interface{}{
+		"id":         rec.ID,
+		"name":       rec.Name,
+		"email":      rec.Email,
+		"password":   rec.Password,
+		"updated_at": domain.UpdatedAt,
+	}).Error
+
+	if err != nil {
+		return userObj, err
+	}
+
+	detailRec := fromDomainToUserDetail(domain)
+	err = ur.DB.Model(&newDetailRecord).Where("user_id = ?", domain.ID).Updates(map[string]interface{}{
+		"user_id":    detailRec.UserID,
+		"updated_at": domain.UpdatedAt,
+	}).Error
+
+	if err != nil {
+		return userObj, err
+	}
+
+	user := joinResult{
+		ID:        rec.ID,
+		Name:      rec.Name,
+		DOB:       detailRec.DOB,
+		Email:     rec.Email,
+		Password:  rec.Password,
+		Phone:     detailRec.Phone,
+		Address:   detailRec.Address,
+		Gender:    detailRec.Gender,
+		Status:    rec.Status,
+		CreatedAt: rec.CreatedAt,
+		UpdatedAt: rec.UpdatedAt,
+	}
+
+	return toDomain(user), nil
+}
+
+// GetDetail implements domain.Repository
+func (ur userRepository) GetDetail(id int) (userObj domain.User, err error) {
+	var record UserDetail
+	err = ur.DB.First(&record).Error
+
+	if err != nil {
+		return userObj, err
+	}
+
+	user := joinResult{
+		ID:      record.UserID,
+		DOB:     record.DOB,
+		Phone:   record.Phone,
+		Address: record.Address,
+		Gender:  record.Gender,
+	}
+
+	return toDomain(user), nil
+}
+
+// AddDetail implements domain.Repository
+func (ur userRepository) AddDetail(domain domain.User) (userObj domain.User, err error) {
+	newRecord := fromDomainToUserDetail(domain)
+	err = ur.DB.Create(&newRecord).Error
+
+	if err != nil {
+		return userObj, err
+	}
+
+	user := joinResult{
+		ID:      domain.ID,
+		DOB:     domain.DOB,
+		Phone:   domain.Phone,
+		Address: domain.Address,
+		Gender:  domain.Gender,
+	}
+
+	return toDomain(user), nil
+}
+
 // GetByID implements domain.Repository
 func (ur userRepository) GetByID(id int) (domain domain.User, err error) {
 	var newRecord User
@@ -37,13 +121,13 @@ func (ur userRepository) GetByID(id int) (domain domain.User, err error) {
 func (ur userRepository) Get() (userObj []domain.User, err error) {
 	var newRecords []joinResult
 
-	ur.DB.Model(&User{}).Select("*").Joins("left join user_details on user_details.user_id = users.id").Scan(&newRecords)
+	err = ur.DB.Model(&UserDetail{}).Select("*").Joins("right join users on users.id = user_details.user_id").Scan(&newRecords).Error
 
 	fmt.Println(err)
 
-	// if err != nil {
-	// 	return userObj, err
-	// }
+	if err != nil {
+		return userObj, err
+	}
 
 	for _, value := range newRecords {
 		userObj = append(userObj, toDomain(value))
@@ -62,7 +146,11 @@ func (ur userRepository) GetByEmail(email string) (userObj domain.User, err erro
 		return userObj, err
 	}
 
-	return userObj, nil
+	user := joinResult{
+		Email:    newRecord.Email,
+		Password: newRecord.Password,
+	}
+	return toDomain(user), nil
 }
 
 // Create implements domain.Repository
@@ -86,11 +174,6 @@ func (ur userRepository) Create(domain domain.User) (userObj domain.User, err er
 	}
 	userObj = toDomain(recordDetail)
 	return userObj, nil
-}
-
-// GetByEmailPassword implements domain.Repository
-func (ur userRepository) GetByEmailPassword(email string, password string) (domain domain.User, err error) {
-	panic("unimplemented")
 }
 
 func NewUserRepository(db *gorm.DB) domain.Repository {
