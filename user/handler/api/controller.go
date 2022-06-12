@@ -202,3 +202,14 @@ func (uh UserHandler) ChangePassword(ctx echo.Context) error {
 		"data":    userObj,
 	})
 }
+
+func (uh UserHandler) UserStatus(id int) (status string, err error) {
+	userObj, err := uh.service.GetByID(id)
+
+	if err != nil {
+		return "", err
+	}
+
+	status = userObj.Status
+	return status, err
+}
