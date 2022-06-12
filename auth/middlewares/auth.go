@@ -1,7 +1,10 @@
 package middlewares
 
 import (
+	"errors"
 	"time"
+
+	handlerAPI "github.com/kelompok43/Golang/user/handler/api"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/kelompok43/Golang/auth"
@@ -47,4 +50,21 @@ func GetUser(ctx echo.Context) *JWTCustomClaim {
 	user := ctx.Get("user").(*jwt.Token)
 	claims := user.Claims.(*JWTCustomClaim)
 	return claims
+}
+
+func UserValidation(status string, userController handlerAPI.UserHandler) echo.MiddlewareFunc {
+	return func(hf echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			claims := GetUser(ctx)
+			userStatus, err := userController.UserStatus(claims.ID)
+			if err != nil {
+				return errors.New("user tidak ditemukan")
+			}
+			if userStatus == status {
+				return hf(ctx)
+			} else {
+				return errors.New("status tidak ditemukan")
+			}
+		}
+	}
 }

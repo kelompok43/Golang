@@ -9,6 +9,7 @@ import (
 	"github.com/kelompok43/Golang/config"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func init() {
@@ -31,9 +32,11 @@ func main() {
 	user := user.NewUserFactory(db, configJWT)
 
 	e := echo.New()
+	authMiddleware.LogMiddlewares(e)
+	cJWT := configJWT.Init()
 
 	e.GET("/user", user.GetAllData)
-	e.GET("/user/:id", user.GetByID)
+	e.GET("/user/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
 	e.GET("/user/profile/:id", user.GetByID)
 	e.POST("/user/profile/detail/:id", user.AddDetail)
 	e.GET("/user/forgot-password", user.GetByEmail)
