@@ -2,7 +2,6 @@ package repoMySQL
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/kelompok43/Golang/user/domain"
 	"gorm.io/gorm"
@@ -59,7 +58,7 @@ func (ur userRepository) Update(domain domain.User) (userObj domain.User, err er
 // GetDetail implements domain.Repository
 func (ur userRepository) GetDetail(id int) (userObj domain.User, err error) {
 	var record UserDetail
-	err = ur.DB.First(&record).Error
+	err = ur.DB.Where("user_id = ?", id).First(&record).Error
 
 	if err != nil {
 		return userObj, err
@@ -123,8 +122,6 @@ func (ur userRepository) Get() (userObj []domain.User, err error) {
 
 	err = ur.DB.Model(&UserDetail{}).Select("*").Joins("right join users on users.id = user_details.user_id").Scan(&newRecords).Error
 
-	fmt.Println(err)
-
 	if err != nil {
 		return userObj, err
 	}
@@ -133,7 +130,6 @@ func (ur userRepository) Get() (userObj []domain.User, err error) {
 		userObj = append(userObj, toDomain(value))
 	}
 
-	fmt.Println(userObj)
 	return userObj, nil
 }
 
@@ -147,6 +143,7 @@ func (ur userRepository) GetByEmail(email string) (userObj domain.User, err erro
 	}
 
 	user := joinResult{
+		ID:       newRecord.ID,
 		Email:    newRecord.Email,
 		Password: newRecord.Password,
 	}

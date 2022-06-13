@@ -62,7 +62,7 @@ func (uh UserHandler) Login(ctx echo.Context) error {
 
 	email := req.Email
 	password := req.Password
-	uToken, err := uh.service.CreateToken(email, password)
+	token, userRes, err := uh.service.CreateToken(email, password)
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -71,14 +71,13 @@ func (uh UserHandler) Login(ctx echo.Context) error {
 		})
 	}
 
-	token := Token{
-		Token: uToken,
-	}
+	userObj := fromDomain(userRes)
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": http.StatusOK,
-		"data":    token,
+		"token":   token,
+		"data":    userObj,
 	})
 }
 
