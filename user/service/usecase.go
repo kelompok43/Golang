@@ -66,11 +66,7 @@ func (us userService) GetByID(id int) (userObj domain.User, err error) {
 		return userObj, err
 	}
 
-	detail, err := us.repository.GetDetail(id)
-
-	if err != nil {
-		return userObj, err
-	}
+	detail, _ := us.repository.GetDetail(id)
 
 	userObj.DOB = detail.DOB
 	userObj.Phone = detail.Phone
@@ -79,25 +75,31 @@ func (us userService) GetByID(id int) (userObj domain.User, err error) {
 	return userObj, nil
 }
 
-func (us userService) CreateToken(email, password string) (token string, err error) {
-	userObj, err := us.repository.GetByEmail(email)
+func (us userService) CreateToken(email, password string) (token string, userObj domain.User, err error) {
+	userObj, err = us.repository.GetByEmail(email)
 
 	if err != nil {
-		return token, err
+		return token, userObj, err
 	}
 
 	if !encrypt.ValidateHash(password, userObj.Password) {
-		return token, errors.New("email atau kata sandi salah")
+		return token, userObj, errors.New("email atau kata sandi salah")
 	}
 
 	id := userObj.ID
 	token, err = us.jwtAuth.GenerateToken(id)
 
 	if err != nil {
-		return token, err
+		return token, userObj, err
 	}
 
-	return token, nil
+	userObj, err = us.GetByID(id)
+
+	if err != nil {
+		return token, userObj, err
+	}
+
+	return token, userObj, nil
 }
 
 func (us userService) InsertData(domain domain.User) (userObj domain.User, err error) {
