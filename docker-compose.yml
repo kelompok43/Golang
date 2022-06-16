@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mariadb:10.7
+    # be sure to run `docker volume rm dev_dev_conf` when changing envs
+    environment:
+      MARIADB_DATABASE: "gmsdb"
+      MARIADB_ROOT_PASSWORD: "mysecretpw"
+    #expose:
+    #  - "3300"
+    ports:
+      - "3300:3306"
+    restart: always
+  gmsapi:
+    build: .
+    image: jiran03/gymmembership:v1
+    depends_on:
+      - mysql
+    links:
+      - mysql:db
+    environment:
+      DB_NAME: "gmsdb"
+      DB_HOST: "host.docker.internal"
+      DB_USER: "root"
+      DB_PASS: "mysecretpw"
+      DB_PORT: 3300
+    container_name: gms-1.0.0
+    ports:
+      - "9600:9700"
+    #env_file:
+    #  - ./config.env
+    restart: always
