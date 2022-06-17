@@ -4,9 +4,11 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
+	"github.com/kelompok43/Golang/admin"
 	"github.com/kelompok43/Golang/auth"
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
 	"github.com/kelompok43/Golang/config"
+	"github.com/kelompok43/Golang/trainer"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
 )
@@ -29,6 +31,8 @@ func main() {
 	}
 
 	user := user.NewUserFactory(db, configJWT)
+	admin := admin.NewAdminFactory(db, configJWT)
+	trainer := trainer.NewTrainerFactory(db)
 
 	e := echo.New()
 
@@ -40,6 +44,19 @@ func main() {
 	e.PUT("/user/change-password/:id", user.ChangePassword)
 	e.POST("/user/login", user.Login)
 	e.POST("/user/register", user.Register)
+
+	e.GET("/admin", admin.GetAllData)
+	e.GET("/admin/:id", admin.GetByID)
+	e.GET("/admin/forgot-password", admin.GetByEmail)
+	e.PUT("/admin/change-password/:id", admin.ChangePassword)
+	e.POST("/admin/login", admin.Login)
+	e.POST("/admin/register", admin.Register)
+
+	e.POST("/trainer", trainer.AddData)
+	e.GET("/trainer", trainer.GetAllData)
+	e.GET("/trainer/:id", trainer.GetByID)
+	e.PUT("/trainer/:id", trainer.UpdateData)
+	e.DELETE("/trainer/:id", trainer.DeleteData)
 
 	e.Start(":9700")
 }
