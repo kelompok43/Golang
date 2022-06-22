@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
 	"github.com/kelompok43/Golang/trainer/domain"
@@ -24,12 +25,15 @@ func (ts trainerService) DeleteData(id int) (err error) {
 
 // UpdateData implements domain.Service
 func (ts trainerService) UpdateData(id int, domain domain.Trainer) (trainerObj domain.Trainer, err error) {
-	trainer, errGetByID := ts.repository.GetByID(id)
+	trainer, errGetByID := ts.GetByID(id)
 
 	if errGetByID != nil {
 		return trainer, errGetByID
 	}
 
+	fmt.Println(trainer)
+
+	domain.CreatedAt = trainer.CreatedAt
 	domain.UpdatedAt = timeHelper.Timestamp()
 	trainerObj, err = ts.repository.Update(id, domain)
 

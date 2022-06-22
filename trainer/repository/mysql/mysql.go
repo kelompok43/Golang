@@ -18,10 +18,10 @@ func (tr trainerRepository) Delete(id int) (err error) {
 }
 
 // Update implements domain.Repository
-func (ur trainerRepository) Update(id int, domain domain.Trainer) (trainerObj domain.Trainer, err error) {
+func (tr trainerRepository) Update(id int, domain domain.Trainer) (trainerObj domain.Trainer, err error) {
 	var newRecord Trainer
 	record := fromDomain(domain)
-	err = ur.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
+	err = tr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
 		"id":         id,
 		"name":       record.Name,
 		"email":      record.Email,
@@ -31,6 +31,7 @@ func (ur trainerRepository) Update(id int, domain domain.Trainer) (trainerObj do
 		"address":    record.Address,
 		"picture":    record.Picture,
 		"field":      record.Field,
+		"created_at": record.CreatedAt,
 		"updated_at": record.UpdatedAt,
 	}).Error
 
@@ -43,9 +44,9 @@ func (ur trainerRepository) Update(id int, domain domain.Trainer) (trainerObj do
 }
 
 // GetByID implements domain.Repository
-func (ur trainerRepository) GetByID(id int) (domain domain.Trainer, err error) {
+func (tr trainerRepository) GetByID(id int) (domain domain.Trainer, err error) {
 	var newRecord Trainer
-	err = ur.DB.First(&newRecord, id).Error
+	err = tr.DB.First(&newRecord, id).Error
 
 	if err != nil {
 		return domain, err
@@ -55,10 +56,10 @@ func (ur trainerRepository) GetByID(id int) (domain domain.Trainer, err error) {
 }
 
 // Get implements domain.Repository
-func (ur trainerRepository) Get() (trainerObj []domain.Trainer, err error) {
+func (tr trainerRepository) Get() (trainerObj []domain.Trainer, err error) {
 	var newRecords []Trainer
 
-	err = ur.DB.Find(&newRecords).Error
+	err = tr.DB.Find(&newRecords).Error
 
 	if err != nil {
 		return trainerObj, err
@@ -72,9 +73,9 @@ func (ur trainerRepository) Get() (trainerObj []domain.Trainer, err error) {
 }
 
 // GetByEmail implements domain.Repository
-func (ur trainerRepository) GetByEmail(email string) (trainerObj domain.Trainer, err error) {
+func (tr trainerRepository) GetByEmail(email string) (trainerObj domain.Trainer, err error) {
 	var newRecord Trainer
-	err = ur.DB.Where("email = ?", email).First(&newRecord).Error
+	err = tr.DB.Where("email = ?", email).First(&newRecord).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return trainerObj, err
@@ -84,10 +85,10 @@ func (ur trainerRepository) GetByEmail(email string) (trainerObj domain.Trainer,
 }
 
 // Create implements domain.Repository
-func (ur trainerRepository) Create(domain domain.Trainer) (trainerObj domain.Trainer, err error) {
+func (tr trainerRepository) Create(domain domain.Trainer) (trainerObj domain.Trainer, err error) {
 	// var recordDetail TrainerDetail
 	newRecord := fromDomain(domain)
-	err = ur.DB.Create(&newRecord).Error
+	err = tr.DB.Create(&newRecord).Error
 
 	if err != nil {
 		return trainerObj, err

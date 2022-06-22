@@ -8,6 +8,7 @@ import (
 	"github.com/kelompok43/Golang/auth"
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
 	"github.com/kelompok43/Golang/config"
+	"github.com/kelompok43/Golang/payment_method"
 	"github.com/kelompok43/Golang/trainer"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
@@ -33,6 +34,7 @@ func main() {
 	user := user.NewUserFactory(db, configJWT)
 	admin := admin.NewAdminFactory(db, configJWT)
 	trainer := trainer.NewTrainerFactory(db)
+	paymentMethod := payment_method.NewPaymentMethodFactory(db)
 
 	e := echo.New()
 
@@ -45,7 +47,7 @@ func main() {
 	e.POST("/user/login", user.Login)
 	e.POST("/user/register", user.Register)
 
-	e.GET("/admin", admin.GetAllData)
+	e.GET("/admin/", admin.GetAllData)
 	e.GET("/admin/:id", admin.GetByID)
 	e.GET("/admin/forgot-password", admin.GetByEmail)
 	e.PUT("/admin/change-password/:id", admin.ChangePassword)
@@ -57,6 +59,12 @@ func main() {
 	e.GET("/trainer/:id", trainer.GetByID)
 	e.PUT("/trainer/:id", trainer.UpdateData)
 	e.DELETE("/trainer/:id", trainer.DeleteData)
+
+	e.POST("/payment_method", paymentMethod.AddData)
+	e.GET("/payment_method", paymentMethod.GetAllData)
+	e.GET("/payment_method/:id", paymentMethod.GetByID)
+	e.PUT("/payment_method/:id", paymentMethod.UpdateData)
+	e.DELETE("/payment_method/:id", paymentMethod.DeleteData)
 
 	e.Start(":9700")
 }
