@@ -2,32 +2,59 @@ version: "3.9"
 
 services:
   mysql:
-    image: mariadb:10.7
+    image: mysql
+    volumes:
+      - db_data:/var/lib/mysql
     # be sure to run `docker volume rm dev_dev_conf` when changing envs
     environment:
-      MARIADB_DATABASE: "gmsdb"
-      MARIADB_ROOT_PASSWORD: "mysecretpw"
+      - MYSQL_DATABASE='gmsdb'
+      - MYSQL_ROOT_PASSWORD=mysecretpw
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=mysecretpw
+
     #expose:
     #  - "3300"
     ports:
       - "3300:3306"
-    restart: always
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=mysecretpw --execute \"SHOW DATABASES;\""
+      # test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-pmysecretpw' ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    networks:
+      - gmsnet
+    # restart: on-failure:10
   gmsapi:
     build: .
-    image: jiran03/gymmembership:v1
-    depends_on:
-      - mysql
-    links:
-      - mysql:db
-    environment:
-      DB_NAME: "gmsdb"
-      DB_HOST: "host.docker.internal"
-      DB_USER: "root"
-      DB_PASS: "mysecretpw"
-      DB_PORT: 3300
+    image: gmscr.azurecr.io/gmsapi:v1
     container_name: gms-1.0.0
+    cap_add:
+      - SYS_NICE
+    depends_on:
+      # - mysql
+      mysql:
+        condition: service_healthy
+    # links:
+    #   - mysql
     ports:
-      - "9600:9700"
+      - "80:9700"
+    environment:
+      DB_NAME: gmsdb
+      DB_HOST: host.docker.internal
+      DB_USER: root
+      DB_PASS: mysecretpw
+      DB_PORT: 3300
     #env_file:
     #  - ./config.env
-    restart: always
+    networks:
+      - gmsnet
+    restart: on-failure:10
+
+volumes:
+  db_data:
+
+networks:
+  gmsnet:
+    name: gmsnet
