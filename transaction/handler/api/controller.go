@@ -5,23 +5,27 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator"
-	"github.com/kelompok43/Golang/trainer/domain"
+	"github.com/kelompok43/Golang/transaction/domain"
 	"github.com/labstack/echo/v4"
 )
 
-type TrainerHandler struct {
-	service    domain.Service
+type TransactionHandler struct {
+	service domain.Service
+	// userService userDomain.Service
+	// pmService   pmDomain.Service
 	validation *validator.Validate
 }
 
-func NewTrainerHandler(service domain.Service) TrainerHandler {
-	return TrainerHandler{
-		service:    service,
+func NewTransactionHandler(service domain.Service) TransactionHandler {
+	return TransactionHandler{
+		service: service,
+		// userService: userService,
+		// pmService:   pmService,
 		validation: validator.New(),
 	}
 }
 
-func (th TrainerHandler) AddData(ctx echo.Context) error {
+func (th TransactionHandler) AddData(ctx echo.Context) error {
 	var req RequestJSON
 	ctx.Bind(&req)
 	errVal := th.validation.Struct(req)
@@ -33,10 +37,10 @@ func (th TrainerHandler) AddData(ctx echo.Context) error {
 		})
 	}
 
-	picture, _ := ctx.FormFile("picture")
+	picture, _ := ctx.FormFile("payment_receipt")
 	src, _ := picture.Open()
 	defer src.Close()
-	req.Picture = src
+	req.PaymentReceipt = src
 	_, err := th.service.InsertData(toDomain(req))
 
 	if err != nil {
@@ -52,8 +56,8 @@ func (th TrainerHandler) AddData(ctx echo.Context) error {
 	})
 }
 
-func (th TrainerHandler) GetAllData(ctx echo.Context) error {
-	trainerRes, err := th.service.GetAllData()
+func (th TransactionHandler) GetAllData(ctx echo.Context) error {
+	transactionRes, err := th.service.GetAllData()
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -62,22 +66,22 @@ func (th TrainerHandler) GetAllData(ctx echo.Context) error {
 		})
 	}
 
-	trainerObj := []ResponseJSON{}
+	transactionObj := []ResponseJSON{}
 
-	for _, value := range trainerRes {
-		trainerObj = append(trainerObj, fromDomain(value))
+	for _, value := range transactionRes {
+		transactionObj = append(transactionObj, fromDomain(value))
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": http.StatusOK,
-		"data":    trainerObj,
+		"data":    transactionObj,
 	})
 }
 
-func (th TrainerHandler) GetByID(ctx echo.Context) error {
+func (th TransactionHandler) GetByID(ctx echo.Context) error {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	trainerRes, err := th.service.GetByID(id)
+	transactionRes, err := th.service.GetByID(id)
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -86,37 +90,16 @@ func (th TrainerHandler) GetByID(ctx echo.Context) error {
 		})
 	}
 
-	trainerObj := fromDomain(trainerRes)
+	transactionObj := fromDomain(transactionRes)
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": http.StatusOK,
-		"data":    trainerObj,
+		"data":    transactionObj,
 	})
 }
 
-func (th TrainerHandler) GetByEmail(ctx echo.Context) error {
-	var req RequestJSON
-	ctx.Bind(&req)
-	email := req.Email
-	trainerRes, err := th.service.GetByEmail(email)
-
-	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
-			"message": err.Error(),
-			"rescode": http.StatusInternalServerError,
-		})
-	}
-
-	trainerObj := fromDomain(trainerRes)
-	return ctx.JSON(http.StatusOK, map[string]interface{}{
-		"message": "success",
-		"rescode": http.StatusOK,
-		"data":    trainerObj,
-	})
-}
-
-func (th TrainerHandler) UpdateData(ctx echo.Context) error {
-	var req RequestJSON
+func (th TransactionHandler) UpdateData(ctx echo.Context) error {
+	var req RequestStatus
 	ctx.Bind(&req)
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	err := th.validation.Struct(req)
@@ -128,7 +111,7 @@ func (th TrainerHandler) UpdateData(ctx echo.Context) error {
 		})
 	}
 
-	trainerRes, err := th.service.UpdateData(id, toDomain(req))
+	transactionRes, err := th.service.UpdateData(id, statusToDomain(req))
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -137,15 +120,20 @@ func (th TrainerHandler) UpdateData(ctx echo.Context) error {
 		})
 	}
 
-	trainerObj := fromDomain(trainerRes)
+	//add user to membership
+	// if transactionRes.Status == "Diterima"{
+
+	// }
+
+	transactionObj := fromDomain(transactionRes)
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": 200,
-		"data":    trainerObj,
+		"data":    transactionObj,
 	})
 }
 
-func (th TrainerHandler) DeleteData(ctx echo.Context) error {
+func (th TransactionHandler) DeleteData(ctx echo.Context) error {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	err := th.service.DeleteData(id)
 

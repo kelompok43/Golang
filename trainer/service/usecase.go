@@ -1,9 +1,11 @@
 package service
 
 import (
+	"bytes"
 	"errors"
-	"fmt"
+	"io"
 
+	storageHelper "github.com/kelompok43/Golang/helpers/azure"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
 	"github.com/kelompok43/Golang/trainer/domain"
 )
@@ -31,10 +33,17 @@ func (ts trainerService) UpdateData(id int, domain domain.Trainer) (trainerObj d
 		return trainer, errGetByID
 	}
 
-	fmt.Println(trainer)
+	emailCheck, _ := ts.repository.GetByEmail(domain.Email)
+	if trainer.Email != emailCheck.Email {
+		_, errGetTrainer := ts.repository.GetByEmail(domain.Email)
+		if errGetTrainer == nil {
+			return trainerObj, errors.New("email telah terdaftar")
+		}
+	}
 
 	domain.CreatedAt = trainer.CreatedAt
 	domain.UpdatedAt = timeHelper.Timestamp()
+	domain.PictureLink = trainer.PictureLink
 	trainerObj, err = ts.repository.Update(id, domain)
 
 	if err != nil {
@@ -78,6 +87,16 @@ func (ts trainerService) InsertData(domain domain.Trainer) (trainerObj domain.Tr
 		return trainerObj, err
 	}
 
+	// sPicture := fmt.Sprintf("%v", domain.Picture)
+	// data, _ := ioutil.ReadFile(sPicture)
+	buf := bytes.NewBuffer(nil)
+
+	if _, err := io.Copy(buf, domain.Picture); err != nil {
+		return trainerObj, err
+	}
+
+	data := buf.Bytes()
+	domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
 	domain.CreatedAt = timeHelper.Timestamp()
 	domain.UpdatedAt = timeHelper.Timestamp()
 	trainerObj, err = ts.repository.Create(domain)

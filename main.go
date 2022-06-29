@@ -10,6 +10,7 @@ import (
 	"github.com/kelompok43/Golang/config"
 	"github.com/kelompok43/Golang/payment_method"
 	"github.com/kelompok43/Golang/trainer"
+	"github.com/kelompok43/Golang/transaction"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
 )
@@ -35,6 +36,7 @@ func main() {
 	admin := admin.NewAdminFactory(db, configJWT)
 	trainer := trainer.NewTrainerFactory(db)
 	paymentMethod := payment_method.NewPaymentMethodFactory(db)
+	transaction := transaction.NewTransactionFactory(db)
 
 	e := echo.New()
 
@@ -60,11 +62,17 @@ func main() {
 	e.PUT("/trainer/:id", trainer.UpdateData)
 	e.DELETE("/trainer/:id", trainer.DeleteData)
 
-	e.POST("/payment_method", paymentMethod.AddData)
-	e.GET("/payment_method", paymentMethod.GetAllData)
-	e.GET("/payment_method/:id", paymentMethod.GetByID)
-	e.PUT("/payment_method/:id", paymentMethod.UpdateData)
-	e.DELETE("/payment_method/:id", paymentMethod.DeleteData)
+	e.POST("/payment/method", paymentMethod.AddData)
+	e.GET("/payment/method", paymentMethod.GetAllData)
+	e.GET("/payment/method/:id", paymentMethod.GetByID)
+	e.PUT("/payment/method/:id", paymentMethod.UpdateData)
+	e.DELETE("/payment/method/:id", paymentMethod.DeleteData)
+
+	e.POST("/transaction", transaction.AddData)
+	e.GET("/transaction", transaction.GetAllData)
+	e.GET("/transaction/:id", transaction.GetByID)
+	e.PUT("/transaction/:id", transaction.UpdateData)
+	e.DELETE("/transaction/:id", transaction.DeleteData)
 
 	e.Start(":9700")
 }
