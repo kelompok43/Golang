@@ -8,6 +8,7 @@ type Service interface {
 	GetByID(id int) (userObj User, err error)
 	GetByEmail(email string) (userObj User, err error)
 	ChangePassword(id int, domain User) (userObj User, err error)
+	UpdateStatus(id int) (userObj User, err error)
 }
 
 type Repository interface {

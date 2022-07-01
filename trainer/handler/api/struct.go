@@ -1,6 +1,7 @@
 package handlerAPI
 
 import (
+	"mime/multipart"
 	"time"
 
 	helperTime "github.com/kelompok43/Golang/helpers/time"
@@ -8,14 +9,14 @@ import (
 )
 
 type RequestJSON struct {
-	Name    string `json:"name" form:"name" validate:"required"`
-	DOB     string `json:"dob" form:"dob" validate:"required"`
-	Email   string `json:"email" form:"email" validate:"required,email"`
-	Gender  string `json:"gender" form:"gender" validate:"required"`
-	Phone   string `json:"phone" form:"phone" validate:"required"`
-	Address string `json:"address" form:"address" validate:"required"`
-	Picture string `json:"picture" form:"picture" validate:"required"`
-	Field   string `json:"field" form:"field" validate:"required"`
+	Name    string         `json:"name" form:"name" validate:"required"`
+	DOB     string         `json:"dob" form:"dob" validate:"required"`
+	Email   string         `json:"email" form:"email" validate:"required,email"`
+	Gender  string         `json:"gender" form:"gender" validate:"required"`
+	Phone   string         `json:"phone" form:"phone" validate:"required"`
+	Address string         `json:"address" form:"address" validate:"required"`
+	Picture multipart.File `form:"picture"`
+	Field   string         `json:"field" form:"field" validate:"required"`
 }
 
 func toDomain(req RequestJSON) domain.Trainer {
@@ -32,17 +33,17 @@ func toDomain(req RequestJSON) domain.Trainer {
 }
 
 type ResponseJSON struct {
-	Id        int       `json:"id"`
-	Name      string    `json:"name" form:"name"`
-	DOB       string    `json:"dob" form:"dob"`
-	Email     string    `json:"email" form:"email"`
-	Gender    string    `json:"gender" form:"gender"`
-	Phone     string    `json:"phone" form:"phone"`
-	Address   string    `json:"address" form:"address"`
-	Picture   string    `json:"picture" form:"picture"`
-	Field     string    `json:"field" form:"field"`
-	CreatedAt time.Time `json:"created_at" form:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" form:"updated_at"`
+	Id          int       `json:"id"`
+	Name        string    `json:"name" form:"name"`
+	DOB         string    `json:"dob" form:"dob"`
+	Email       string    `json:"email" form:"email"`
+	Gender      string    `json:"gender" form:"gender"`
+	Phone       string    `json:"phone" form:"phone"`
+	Address     string    `json:"address" form:"address"`
+	PictureLink string    `json:"picture" form:"picture"`
+	Field       string    `json:"field" form:"field"`
+	CreatedAt   time.Time `json:"created_at" form:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" form:"updated_at"`
 }
 
 func fromDomain(domain domain.Trainer) ResponseJSON {
@@ -51,16 +52,16 @@ func fromDomain(domain domain.Trainer) ResponseJSON {
 	tmUpdatedAt := helperTime.NanoToTime(domain.UpdatedAt)
 
 	return ResponseJSON{
-		Id:        domain.ID,
-		Name:      domain.Name,
-		DOB:       domain.DOB,
-		Email:     domain.Email,
-		Gender:    domain.Gender,
-		Phone:     domain.Phone,
-		Address:   domain.Address,
-		Picture:   domain.Picture,
-		Field:     domain.Field,
-		CreatedAt: tmCreatedAt,
-		UpdatedAt: tmUpdatedAt,
+		Id:          domain.ID,
+		Name:        domain.Name,
+		DOB:         domain.DOB,
+		Email:       domain.Email,
+		Gender:      domain.Gender,
+		Phone:       domain.Phone,
+		Address:     domain.Address,
+		PictureLink: domain.PictureLink,
+		Field:       domain.Field,
+		CreatedAt:   tmCreatedAt,
+		UpdatedAt:   tmUpdatedAt,
 	}
 }

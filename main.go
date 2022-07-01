@@ -8,8 +8,10 @@ import (
 	"github.com/kelompok43/Golang/auth"
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
 	"github.com/kelompok43/Golang/config"
+	"github.com/kelompok43/Golang/membership"
 	"github.com/kelompok43/Golang/payment_method"
 	"github.com/kelompok43/Golang/trainer"
+	"github.com/kelompok43/Golang/transaction"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
 )
@@ -35,17 +37,21 @@ func main() {
 	admin := admin.NewAdminFactory(db, configJWT)
 	trainer := trainer.NewTrainerFactory(db)
 	paymentMethod := payment_method.NewPaymentMethodFactory(db)
+	membership := membership.NewMembershipFactory(db)
+	transaction := transaction.NewTransactionFactory(db, configJWT)
 
 	e := echo.New()
 
-	e.GET("/user", user.GetAllData)
-	e.GET("/user/:id", user.GetByID)
-	e.GET("/user/profile/:id", user.GetByID)
-	e.POST("/user/profile/detail/:id", user.AddDetail)
-	e.GET("/user/forgot-password", user.GetByEmail)
-	e.PUT("/user/change-password/:id", user.ChangePassword)
-	e.POST("/user/login", user.Login)
-	e.POST("/user/register", user.Register)
+	userGroup := e.Group("/user")
+	userGroup.GET("", user.GetAllData)
+	userGroup.GET("/:id", user.GetByID)
+	userGroup.GET("/profile/:id", user.GetByID)
+	userGroup.POST("/profile/detail/:id", user.AddDetail)
+	userGroup.GET("/forgot-password", user.GetByEmail)
+	userGroup.PUT("/change-password/:id", user.ChangePassword)
+	userGroup.PUT("/membership/status/:id", user.UpdateStatus)
+	userGroup.POST("/login", user.Login)
+	userGroup.POST("/register", user.Register)
 
 	e.GET("/admin/", admin.GetAllData)
 	e.GET("/admin/:id", admin.GetByID)
@@ -60,11 +66,24 @@ func main() {
 	e.PUT("/trainer/:id", trainer.UpdateData)
 	e.DELETE("/trainer/:id", trainer.DeleteData)
 
-	e.POST("/payment_method", paymentMethod.AddData)
-	e.GET("/payment_method", paymentMethod.GetAllData)
-	e.GET("/payment_method/:id", paymentMethod.GetByID)
-	e.PUT("/payment_method/:id", paymentMethod.UpdateData)
-	e.DELETE("/payment_method/:id", paymentMethod.DeleteData)
+	e.POST("/payment/method", paymentMethod.AddData)
+	e.GET("/payment/method", paymentMethod.GetAllData)
+	e.GET("/payment/method/:id", paymentMethod.GetByID)
+	e.PUT("/payment/method/:id", paymentMethod.UpdateData)
+	e.DELETE("/payment/method/:id", paymentMethod.DeleteData)
+
+	e.POST("/transaction", transaction.AddData)
+	e.GET("/transaction", transaction.GetAllData)
+	e.GET("/transaction/:id", transaction.GetByID)
+	e.PUT("/transaction/:id", transaction.UpdateStatus)
+	e.DELETE("/transaction/:id", transaction.DeleteData)
+
+	membershipGroup := e.Group("/membership")
+	membershipGroup.POST("", membership.AddData)
+	membershipGroup.GET("", membership.GetAllData)
+	membershipGroup.GET("/:id", membership.GetByID)
+	membershipGroup.PUT("/:id", membership.UpdateData)
+	membershipGroup.DELETE("/:id", membership.DeleteData)
 
 	e.Start(":9700")
 }

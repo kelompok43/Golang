@@ -2,17 +2,53 @@ package service
 
 import (
 	"errors"
+	"strconv"
 
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
 	"github.com/kelompok43/Golang/helpers/encrypt"
 	encryptHelper "github.com/kelompok43/Golang/helpers/encrypt"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
+	membershipDomain "github.com/kelompok43/Golang/membership/domain"
 	"github.com/kelompok43/Golang/user/domain"
 )
 
 type userService struct {
-	repository domain.Repository
-	jwtAuth    authMiddleware.ConfigJWT
+	repository        domain.Repository
+	jwtAuth           authMiddleware.ConfigJWT
+	membershipService membershipDomain.Service
+}
+
+// UpdateStatus implements domain.Service
+func (us userService) UpdateStatus(id int) (userObj domain.User, err error) {
+	user, err := us.repository.GetByID(id)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	status := "Bukan Member"
+	now, _ := strconv.Atoi(timeHelper.Timestamp())
+	userMember, err := us.membershipService.GetOrderByUserID(id)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	for i := range userMember {
+		userExpired, _ := strconv.Atoi(userMember[i].Expired)
+		if userExpired < now {
+			status = "Member"
+		}
+	}
+
+	user.Status = status
+	userObj, err = us.repository.Update(user)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	return userObj, nil
 }
 
 // ChangePassword implements domain.Service
@@ -139,9 +175,10 @@ func (us userService) GetAllData() (userObj []domain.User, err error) {
 	return userObj, nil
 }
 
-func NewUserService(repo domain.Repository, jwtAuth authMiddleware.ConfigJWT) domain.Service {
+func NewUserService(repo domain.Repository, jwtAuth authMiddleware.ConfigJWT, ms membershipDomain.Service) domain.Service {
 	return userService{
-		repository: repo,
-		jwtAuth:    jwtAuth,
+		repository:        repo,
+		jwtAuth:           jwtAuth,
+		membershipService: ms,
 	}
 }

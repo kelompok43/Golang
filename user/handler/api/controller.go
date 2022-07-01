@@ -202,6 +202,33 @@ func (uh UserHandler) ChangePassword(ctx echo.Context) error {
 	})
 }
 
+func (uh UserHandler) UpdateStatus(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param("id"))
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	userRes, err := uh.service.UpdateStatus(id)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	userObj := fromDomain(userRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    userObj,
+	})
+}
+
 func (uh UserHandler) UserStatus(id int) (status string, err error) {
 	userObj, err := uh.service.GetByID(id)
 

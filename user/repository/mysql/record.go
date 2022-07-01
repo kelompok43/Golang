@@ -1,20 +1,22 @@
 package repoMySQL
 
 import (
+	repoMYSQLTrx "github.com/kelompok43/Golang/transaction/repository/mysql"
 	"github.com/kelompok43/Golang/user/domain"
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	ID         int
-	Name       string
-	Email      string
-	Password   string
-	Status     string
-	CreatedAt  string
-	UpdatedAt  string
-	UserDetail UserDetail
+	ID           int
+	Name         string
+	Email        string
+	Password     string
+	Status       string
+	CreatedAt    string
+	UpdatedAt    string
+	UserDetail   UserDetail
+	Transactions []repoMYSQLTrx.Transaction `gorm:"foreignKey:UserID"`
 }
 
 type UserDetail struct {

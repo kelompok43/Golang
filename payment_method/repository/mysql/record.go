@@ -2,17 +2,19 @@ package repoMySQL
 
 import (
 	"github.com/kelompok43/Golang/payment_method/domain"
+	repoMYSQLTrx "github.com/kelompok43/Golang/transaction/repository/mysql"
 	"gorm.io/gorm"
 )
 
 type PaymentMethod struct {
 	gorm.Model
-	ID        int
-	Name      string
-	AccNumber string
-	AccName   string
-	CreatedAt string
-	UpdatedAt string
+	ID           int
+	Name         string
+	AccNumber    string
+	AccName      string
+	CreatedAt    string
+	UpdatedAt    string
+	Transactions []repoMYSQLTrx.Transaction `gorm:"foreignKey:UserID"`
 }
 
 func toDomain(rec PaymentMethod) domain.PaymentMethod {

@@ -22,17 +22,17 @@ func (tr trainerRepository) Update(id int, domain domain.Trainer) (trainerObj do
 	var newRecord Trainer
 	record := fromDomain(domain)
 	err = tr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
-		"id":         id,
-		"name":       record.Name,
-		"email":      record.Email,
-		"dob":        record.DOB,
-		"gender":     record.Gender,
-		"phone":      record.Phone,
-		"address":    record.Address,
-		"picture":    record.Picture,
-		"field":      record.Field,
-		"created_at": record.CreatedAt,
-		"updated_at": record.UpdatedAt,
+		"id":           id,
+		"name":         record.Name,
+		"email":        record.Email,
+		"dob":          record.DOB,
+		"gender":       record.Gender,
+		"phone":        record.Phone,
+		"address":      record.Address,
+		"picture_link": record.PictureLink,
+		"field":        record.Field,
+		"created_at":   record.CreatedAt,
+		"updated_at":   record.UpdatedAt,
 	}).Error
 
 	if err != nil {
