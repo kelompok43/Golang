@@ -1,13 +1,14 @@
 package domain
 
 type Service interface {
-	CreateToken(email, password string) (token string, err error)
+	CreateToken(email, password string) (token string, userObj User, err error)
 	InsertData(domain User) (userObj User, err error)
 	InsertDetailData(domain User) (userObj User, err error)
 	GetAllData() (userObj []User, err error)
 	GetByID(id int) (userObj User, err error)
 	GetByEmail(email string) (userObj User, err error)
 	ChangePassword(id int, domain User) (userObj User, err error)
+	UpdateStatus(id int) (userObj User, err error)
 }
 
 type Repository interface {

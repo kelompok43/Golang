@@ -4,6 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	repoAdmin "github.com/kelompok43/Golang/admin/repository/mysql"
+	repoMembership "github.com/kelompok43/Golang/membership/repository/mysql"
+	repoPM "github.com/kelompok43/Golang/payment_method/repository/mysql"
+	repoTrainer "github.com/kelompok43/Golang/trainer/repository/mysql"
+	repoTransaction "github.com/kelompok43/Golang/transaction/repository/mysql"
 	repoUser "github.com/kelompok43/Golang/user/repository/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -48,5 +53,11 @@ func DBMigrate(DB *gorm.DB) {
 	DB.AutoMigrate(
 		&repoUser.User{},
 		&repoUser.UserDetail{},
+		&repoAdmin.Admin{},
+		&repoTrainer.Trainer{},
+		&repoPM.PaymentMethod{},
+		&repoTransaction.Transaction{},
+		&repoMembership.Membership{},
+		&repoMembership.MembershipOrder{},
 	)
 }

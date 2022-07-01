@@ -4,9 +4,14 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
+	"github.com/kelompok43/Golang/admin"
 	"github.com/kelompok43/Golang/auth"
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
 	"github.com/kelompok43/Golang/config"
+	"github.com/kelompok43/Golang/membership"
+	"github.com/kelompok43/Golang/payment_method"
+	"github.com/kelompok43/Golang/trainer"
+	"github.com/kelompok43/Golang/transaction"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -30,19 +35,58 @@ func main() {
 	}
 
 	user := user.NewUserFactory(db, configJWT)
+	admin := admin.NewAdminFactory(db, configJWT)
+	trainer := trainer.NewTrainerFactory(db)
+	paymentMethod := payment_method.NewPaymentMethodFactory(db)
+	membership := membership.NewMembershipFactory(db)
+	transaction := transaction.NewTransactionFactory(db, configJWT)
 
 	e := echo.New()
 	authMiddleware.LogMiddlewares(e)
 	cJWT := configJWT.Init()
 
-	e.GET("/user", user.GetAllData)
-	e.GET("/user/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
-	e.GET("/user/profile/:id", user.GetByID)
-	e.POST("/user/profile/detail/:id", user.AddDetail)
-	e.GET("/user/forgot-password", user.GetByEmail)
-	e.PUT("/user/change-password/:id", user.ChangePassword)
-	e.POST("/user/login", user.Login)
-	e.POST("/user/register", user.Register)
+	userGroup := e.Group("/user")
+	userGroup.GET("", user.GetAllData)
+	userGroup.GET("/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
+	userGroup.GET("/profile/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
+	userGroup.POST("/profile/detail/:id", user.AddDetail)
+	userGroup.GET("/forgot-password", user.GetByEmail)
+	userGroup.PUT("/change-password/:id", user.ChangePassword)
+	userGroup.PUT("/membership/status/:id", user.UpdateStatus)
+	userGroup.POST("/login", user.Login)
+	userGroup.POST("/register", user.Register)
+
+	e.GET("/admin/", admin.GetAllData)
+	e.GET("/admin/:id", admin.GetByID)
+	e.GET("/admin/forgot-password", admin.GetByEmail)
+	e.PUT("/admin/change-password/:id", admin.ChangePassword)
+	e.POST("/admin/login", admin.Login)
+	e.POST("/admin/register", admin.Register)
+
+	e.POST("/trainer", trainer.AddData)
+	e.GET("/trainer", trainer.GetAllData)
+	e.GET("/trainer/:id", trainer.GetByID)
+	e.PUT("/trainer/:id", trainer.UpdateData)
+	e.DELETE("/trainer/:id", trainer.DeleteData)
+
+	e.POST("/payment/method", paymentMethod.AddData)
+	e.GET("/payment/method", paymentMethod.GetAllData)
+	e.GET("/payment/method/:id", paymentMethod.GetByID)
+	e.PUT("/payment/method/:id", paymentMethod.UpdateData)
+	e.DELETE("/payment/method/:id", paymentMethod.DeleteData)
+
+	e.POST("/transaction", transaction.AddData, middleware.JWTWithConfig(cJWT))
+	e.GET("/transaction", transaction.GetAllData)
+	e.GET("/transaction/:id", transaction.GetByID)
+	e.PUT("/transaction/:id", transaction.UpdateStatus)
+	e.DELETE("/transaction/:id", transaction.DeleteData)
+
+	membershipGroup := e.Group("/membership")
+	membershipGroup.POST("", membership.AddData)
+	membershipGroup.GET("", membership.GetAllData)
+	membershipGroup.GET("/:id", membership.GetByID)
+	membershipGroup.PUT("/:id", membership.UpdateData)
+	membershipGroup.DELETE("/:id", membership.DeleteData)
 
 	e.Start(":9700")
 }

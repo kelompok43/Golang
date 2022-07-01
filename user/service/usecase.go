@@ -2,17 +2,53 @@ package service
 
 import (
 	"errors"
+	"strconv"
 
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
 	"github.com/kelompok43/Golang/helpers/encrypt"
 	encryptHelper "github.com/kelompok43/Golang/helpers/encrypt"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
+	membershipDomain "github.com/kelompok43/Golang/membership/domain"
 	"github.com/kelompok43/Golang/user/domain"
 )
 
 type userService struct {
-	repository domain.Repository
-	jwtAuth    authMiddleware.ConfigJWT
+	repository        domain.Repository
+	jwtAuth           authMiddleware.ConfigJWT
+	membershipService membershipDomain.Service
+}
+
+// UpdateStatus implements domain.Service
+func (us userService) UpdateStatus(id int) (userObj domain.User, err error) {
+	user, err := us.repository.GetByID(id)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	status := "Bukan Member"
+	now, _ := strconv.Atoi(timeHelper.Timestamp())
+	userMember, err := us.membershipService.GetOrderByUserID(id)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	for i := range userMember {
+		userExpired, _ := strconv.Atoi(userMember[i].Expired)
+		if userExpired < now {
+			status = "Member"
+		}
+	}
+
+	user.Status = status
+	userObj, err = us.repository.Update(user)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	return userObj, nil
 }
 
 // ChangePassword implements domain.Service
@@ -66,11 +102,7 @@ func (us userService) GetByID(id int) (userObj domain.User, err error) {
 		return userObj, err
 	}
 
-	detail, err := us.repository.GetDetail(id)
-
-	if err != nil {
-		return userObj, err
-	}
+	detail, _ := us.repository.GetDetail(id)
 
 	userObj.DOB = detail.DOB
 	userObj.Phone = detail.Phone
@@ -79,25 +111,31 @@ func (us userService) GetByID(id int) (userObj domain.User, err error) {
 	return userObj, nil
 }
 
-func (us userService) CreateToken(email, password string) (token string, err error) {
-	userObj, err := us.repository.GetByEmail(email)
+func (us userService) CreateToken(email, password string) (token string, userObj domain.User, err error) {
+	userObj, err = us.repository.GetByEmail(email)
 
 	if err != nil {
-		return token, err
+		return token, userObj, err
 	}
 
 	if !encrypt.ValidateHash(password, userObj.Password) {
-		return token, errors.New("email atau kata sandi salah")
+		return token, userObj, errors.New("email atau kata sandi salah")
 	}
 
 	id := userObj.ID
 	token, err = us.jwtAuth.GenerateToken(id)
 
 	if err != nil {
-		return token, err
+		return token, userObj, err
 	}
 
-	return token, nil
+	userObj, err = us.GetByID(id)
+
+	if err != nil {
+		return token, userObj, err
+	}
+
+	return token, userObj, nil
 }
 
 func (us userService) InsertData(domain domain.User) (userObj domain.User, err error) {
@@ -137,9 +175,10 @@ func (us userService) GetAllData() (userObj []domain.User, err error) {
 	return userObj, nil
 }
 
-func NewUserService(repo domain.Repository, jwtAuth authMiddleware.ConfigJWT) domain.Service {
+func NewUserService(repo domain.Repository, jwtAuth authMiddleware.ConfigJWT, ms membershipDomain.Service) domain.Service {
 	return userService{
-		repository: repo,
-		jwtAuth:    jwtAuth,
+		repository:        repo,
+		jwtAuth:           jwtAuth,
+		membershipService: ms,
 	}
 }
