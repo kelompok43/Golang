@@ -1,7 +1,8 @@
-package servicePaymentMethod
+package serviceMembership
 
 import (
 	"fmt"
+	"strconv"
 
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
 	"github.com/kelompok43/Golang/membership/domain"
@@ -9,6 +10,42 @@ import (
 
 type membershipService struct {
 	repository domain.Repository
+}
+
+// GetOrderByUserID implements domain.Service
+func (ms membershipService) GetOrderByUserID(userID int) (membershipOrderObj []domain.MembershipOrder, err error) {
+	membershipOrderObj, err = ms.repository.GetByUserID(userID)
+
+	if err != nil {
+		return membershipOrderObj, err
+	}
+
+	return membershipOrderObj, nil
+}
+
+// AddOrder implements domain.Service
+func (ms membershipService) InsertOrder(transactionID, price int) (membershipOrderObj domain.MembershipOrder, err error) {
+	var domain domain.MembershipOrder
+	membership, err := ms.repository.GetByPrice(price)
+
+	if err != nil {
+		return membershipOrderObj, err
+	}
+
+	timeNow, _ := strconv.Atoi(timeHelper.Timestamp())
+	expired := timeNow * membership.Duration
+	domain.Expired = strconv.Itoa(expired)
+	domain.MembershipID = membership.ID
+	domain.TransactionID = transactionID
+	domain.CreatedAt = strconv.Itoa(timeNow)
+	domain.UpdatedAt = strconv.Itoa(timeNow)
+	membershipOrderObj, err = ms.repository.CreateOrder(domain)
+
+	if err != nil {
+		return membershipOrderObj, err
+	}
+
+	return membershipOrderObj, nil
 }
 
 // DeleteData implements domain.Service
@@ -77,7 +114,7 @@ func (ms membershipService) GetAllData() (membershipObj []domain.Membership, err
 	return membershipObj, nil
 }
 
-func NewPaymentMethodService(repo domain.Repository) domain.Service {
+func NewMembershipService(repo domain.Repository) domain.Service {
 	return membershipService{
 		repository: repo,
 	}

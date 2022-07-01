@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/go-playground/validator"
+
 	"github.com/kelompok43/Golang/transaction/domain"
 	"github.com/labstack/echo/v4"
 )
@@ -98,7 +99,7 @@ func (th TransactionHandler) GetByID(ctx echo.Context) error {
 	})
 }
 
-func (th TransactionHandler) UpdateData(ctx echo.Context) error {
+func (th TransactionHandler) UpdateStatus(ctx echo.Context) error {
 	var req RequestStatus
 	ctx.Bind(&req)
 	id, _ := strconv.Atoi(ctx.Param("id"))
@@ -111,7 +112,7 @@ func (th TransactionHandler) UpdateData(ctx echo.Context) error {
 		})
 	}
 
-	transactionRes, err := th.service.UpdateData(id, statusToDomain(req))
+	transactionRes, err := th.service.UpdateStatus(id, statusToDomain(req))
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -119,11 +120,6 @@ func (th TransactionHandler) UpdateData(ctx echo.Context) error {
 			"rescode": http.StatusInternalServerError,
 		})
 	}
-
-	//add user to membership
-	// if transactionRes.Status == "Diterima"{
-
-	// }
 
 	transactionObj := fromDomain(transactionRes)
 	return ctx.JSON(http.StatusOK, map[string]interface{}{

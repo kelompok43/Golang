@@ -7,16 +7,15 @@ import (
 
 	storageHelper "github.com/kelompok43/Golang/helpers/azure"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
+	membershipDomain "github.com/kelompok43/Golang/membership/domain"
 	"github.com/kelompok43/Golang/transaction/domain"
+	userDomain "github.com/kelompok43/Golang/user/domain"
 )
 
 type transactionService struct {
-	repository domain.Repository
-}
-
-// UpdateStatus implements domain.Service
-func (transactionService) UpdateStatus(id int, status string) (transactionObj domain.Transaction, err error) {
-	panic("unimplemented")
+	repository        domain.Repository
+	membershipService membershipDomain.Service
+	userService       userDomain.Service
 }
 
 // DeleteData implements domain.Service
@@ -31,7 +30,7 @@ func (ts transactionService) DeleteData(id int) (err error) {
 }
 
 // UpdateData implements domain.Service
-func (ts transactionService) UpdateData(id int, domain domain.Transaction) (transactionObj domain.Transaction, err error) {
+func (ts transactionService) UpdateStatus(id int, domain domain.Transaction) (transactionObj domain.Transaction, err error) {
 	transaction, errGetByID := ts.GetByID(id)
 
 	if errGetByID != nil {
@@ -39,6 +38,22 @@ func (ts transactionService) UpdateData(id int, domain domain.Transaction) (tran
 	}
 
 	fmt.Println(transaction)
+
+	//add user to become a membership
+	if domain.Status == "Diterima" {
+		_, err := ts.membershipService.InsertOrder(transaction.ID, transaction.TotalPrice)
+
+		if err != nil {
+			return transactionObj, err
+		}
+
+		//change status user
+		_, err = ts.userService.UpdateStatus(transaction.UserID)
+
+		if err != nil {
+			return transactionObj, err
+		}
+	}
 
 	transaction.Status = domain.Status
 	transaction.UpdatedAt = timeHelper.Timestamp()
@@ -94,8 +109,10 @@ func (ts transactionService) GetAllData() (transactionObj []domain.Transaction, 
 	return transactionObj, nil
 }
 
-func NewTransactionService(repo domain.Repository) domain.Service {
+func NewTransactionService(repo domain.Repository, ms membershipDomain.Service, us userDomain.Service) domain.Service {
 	return transactionService{
-		repository: repo,
+		repository:        repo,
+		membershipService: ms,
+		userService:       us,
 	}
 }

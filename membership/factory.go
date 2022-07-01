@@ -1,15 +1,15 @@
-package payment_method
+package membership
 
 import (
-	handlerAPI "github.com/kelompok43/Golang/payment_method/handler/api"
-	repoMySQL "github.com/kelompok43/Golang/payment_method/repository/mysql"
-	service "github.com/kelompok43/Golang/payment_method/service"
+	handlerAPI "github.com/kelompok43/Golang/membership/handler/api"
+	repoMySQL "github.com/kelompok43/Golang/membership/repository/mysql"
+	service "github.com/kelompok43/Golang/membership/service"
 	"gorm.io/gorm"
 )
 
-func NewPaymentMethodFactory(db *gorm.DB) (paymentMethodHandler handlerAPI.PaymentMethodHandler) {
-	paymentMethodRepo := repoMySQL.NewPaymentMethodRepository(db)
-	paymentMethodService := service.NewPaymentMethodService(paymentMethodRepo)
-	paymentMethodHandler = handlerAPI.NewPaymentMethodHandler(paymentMethodService)
+func NewMembershipFactory(db *gorm.DB) (membershipHandler handlerAPI.MembershipHandler) {
+	membershipRepo := repoMySQL.NewMembershipRepository(db)
+	membershipService := service.NewMembershipService(membershipRepo)
+	membershipHandler = handlerAPI.NewMembershipHandler(membershipService)
 	return
 }

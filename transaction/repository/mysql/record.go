@@ -1,6 +1,7 @@
 package repoMySQL
 
 import (
+	repoMySQLM "github.com/kelompok43/Golang/membership/repository/mysql"
 	"github.com/kelompok43/Golang/transaction/domain"
 	"gorm.io/gorm"
 )
@@ -15,6 +16,7 @@ type Transaction struct {
 	PictureLink     string
 	CreatedAt       string
 	UpdatedAt       string
+	Memberships     []repoMySQLM.MembershipOrder `gorm:"foreignKey:TransactionID"`
 }
 
 func toDomain(rec Transaction) domain.Transaction {

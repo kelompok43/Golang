@@ -14,4 +14,6 @@ type MembershipOrder struct {
 	TransactionID int
 	MembershipID  int
 	Expired       string
+	CreatedAt     string
+	UpdatedAt     string
 }

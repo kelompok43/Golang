@@ -4,8 +4,7 @@ type Service interface {
 	InsertData(domain Transaction) (transactionObj Transaction, err error)
 	GetAllData() (transactionObj []Transaction, err error)
 	GetByID(id int) (transactionObj Transaction, err error)
-	UpdateData(id int, domain Transaction) (transactionObj Transaction, err error)
-	UpdateStatus(id int, status string) (transactionObj Transaction, err error)
+	UpdateStatus(id int, domain Transaction) (transactionObj Transaction, err error)
 	DeleteData(id int) (err error)
 }
 

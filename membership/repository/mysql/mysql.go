@@ -1,45 +1,86 @@
 package repoMySQL
 
 import (
-	"github.com/kelompok43/Golang/payment_method/domain"
+	"github.com/kelompok43/Golang/membership/domain"
 	"gorm.io/gorm"
 )
 
-type paymentMethodRepository struct {
+type membershipRepository struct {
 	DB *gorm.DB
 }
 
+// GetByUserID implements domain.Repository
+func (mr membershipRepository) GetByUserID(userID int) (membershipOrderObj []domain.MembershipOrder, err error) {
+	var newRecord []MembershipOrder
+	err = mr.DB.Where("user_id = ?", userID).Find(&newRecord).Error
+
+	if err != nil {
+		return membershipOrderObj, err
+	}
+
+	for _, value := range newRecord {
+		membershipOrderObj = append(membershipOrderObj, orderToDomain(value))
+	}
+
+	return membershipOrderObj, nil
+}
+
+// GetByPrice implements domain.Repository
+func (mr membershipRepository) GetByPrice(price int) (membershipObj domain.Membership, err error) {
+	var newRecord Membership
+	err = mr.DB.Where("price = ?", price).First(&newRecord).Error
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	return membershipObj, nil
+}
+
+// CreateOrder implements domain.Repository
+func (mr membershipRepository) CreateOrder(domain domain.MembershipOrder) (membershipOrderObj domain.MembershipOrder, err error) {
+	newRecord := fromDomainToOrder(domain)
+	err = mr.DB.Create(&newRecord).Error
+
+	if err != nil {
+		return membershipOrderObj, err
+	}
+
+	membershipOrderObj = orderToDomain(newRecord)
+	return membershipOrderObj, nil
+}
+
 // Delete implements domain.Repository
-func (tr paymentMethodRepository) Delete(id int) (err error) {
-	var record PaymentMethod
-	return tr.DB.Delete(&record, id).Error
+func (mr membershipRepository) Delete(id int) (err error) {
+	var record Membership
+	return mr.DB.Delete(&record, id).Error
 }
 
 // Update implements domain.Repository
-func (tr paymentMethodRepository) Update(id int, domain domain.PaymentMethod) (paymentMethodObj domain.PaymentMethod, err error) {
-	var newRecord PaymentMethod
+func (mr membershipRepository) Update(id int, domain domain.Membership) (membershipObj domain.Membership, err error) {
+	var newRecord Membership
 	record := fromDomain(domain)
-	err = tr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
+	err = mr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
 		"id":         id,
-		"name":       record.Name,
-		"acc_number": record.AccNumber,
-		"acc_name":   record.AccName,
+		"category":   record.Category,
+		"price":      record.Price,
+		"duration":   record.Duration,
 		"created_at": record.CreatedAt,
 		"updated_at": record.UpdatedAt,
 	}).Error
 
 	if err != nil {
-		return paymentMethodObj, err
+		return membershipObj, err
 	}
 
-	paymentMethodObj = toDomain(newRecord)
-	return paymentMethodObj, nil
+	membershipObj = toDomain(newRecord)
+	return membershipObj, nil
 }
 
 // GetByID implements domain.Repository
-func (tr paymentMethodRepository) GetByID(id int) (domain domain.PaymentMethod, err error) {
-	var newRecord PaymentMethod
-	err = tr.DB.First(&newRecord, id).Error
+func (mr membershipRepository) GetByID(id int) (domain domain.Membership, err error) {
+	var newRecord Membership
+	err = mr.DB.First(&newRecord, id).Error
 
 	if err != nil {
 		return domain, err
@@ -49,38 +90,38 @@ func (tr paymentMethodRepository) GetByID(id int) (domain domain.PaymentMethod, 
 }
 
 // Get implements domain.Repository
-func (tr paymentMethodRepository) Get() (paymentMethodObj []domain.PaymentMethod, err error) {
-	var newRecords []PaymentMethod
+func (mr membershipRepository) Get() (membershipObj []domain.Membership, err error) {
+	var newRecords []Membership
 
-	err = tr.DB.Find(&newRecords).Error
+	err = mr.DB.Find(&newRecords).Error
 
 	if err != nil {
-		return paymentMethodObj, err
+		return membershipObj, err
 	}
 
 	for _, value := range newRecords {
-		paymentMethodObj = append(paymentMethodObj, toDomain(value))
+		membershipObj = append(membershipObj, toDomain(value))
 	}
 
-	return paymentMethodObj, nil
+	return membershipObj, nil
 }
 
 // Create implements domain.Repository
-func (tr paymentMethodRepository) Create(domain domain.PaymentMethod) (paymentMethodObj domain.PaymentMethod, err error) {
-	// var recordDetail PaymentMethodDetail
+func (mr membershipRepository) Create(domain domain.Membership) (membershipObj domain.Membership, err error) {
+	// var recordDetail MembershipDetail
 	newRecord := fromDomain(domain)
-	err = tr.DB.Create(&newRecord).Error
+	err = mr.DB.Create(&newRecord).Error
 
 	if err != nil {
-		return paymentMethodObj, err
+		return membershipObj, err
 	}
 
-	paymentMethodObj = toDomain(newRecord)
-	return paymentMethodObj, nil
+	membershipObj = toDomain(newRecord)
+	return membershipObj, nil
 }
 
-func NewPaymentMethodRepository(db *gorm.DB) domain.Repository {
-	return paymentMethodRepository{
+func NewMembershipRepository(db *gorm.DB) domain.Repository {
+	return membershipRepository{
 		DB: db,
 	}
 }
