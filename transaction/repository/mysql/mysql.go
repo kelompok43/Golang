@@ -11,6 +11,20 @@ type transactionRepository struct {
 	DB *gorm.DB
 }
 
+// CreateDetail implements domain.Repository
+func (tr transactionRepository) CreateDetail(domain domain.TransactionDetail) (transactionDetailObj domain.TransactionDetail, err error) {
+	newRecord := fromDomainToDetail(domain)
+
+	err = tr.DB.Create(&newRecord).Error
+
+	if err != nil {
+		return transactionDetailObj, err
+	}
+
+	transactionDetailObj = detailToDomain(newRecord)
+	return transactionDetailObj, nil
+}
+
 // Delete implements domain.Repository
 func (tr transactionRepository) Delete(id int) (err error) {
 	var record Transaction

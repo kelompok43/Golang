@@ -12,26 +12,66 @@ type membershipService struct {
 	repository domain.Repository
 }
 
-// GetOrderByUserID implements domain.Service
-func (ms membershipService) GetOrderByUserID(userID int) (membershipOrderObj []domain.MembershipOrder, err error) {
-	membershipOrderObj, err = ms.repository.GetByUserID(userID)
+// GetByUserID implements domain.Service
+func (ms membershipService) GetByUserID(userID int) (membershipObj domain.Membership, err error) {
+	membershipObj, err = ms.repository.GetByUserID(userID)
 
 	if err != nil {
-		return membershipOrderObj, err
+		return membershipObj, err
 	}
 
-	return membershipOrderObj, nil
+	return membershipObj, nil
+}
+
+// InsertData implements domain.Service
+func (ms membershipService) InsertData(userID, categoryID int) (membershipObj domain.Membership, err error) {
+	var domain domain.Membership
+	category, err := ms.repository.GetCategoryByID(categoryID)
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	fmt.Println(userID)
+	fmt.Println("category", category)
+	timeNow, _ := strconv.Atoi(timeHelper.Timestamp())
+	expired := timeNow * category.Duration
+	domain.ExpiredAt = strconv.Itoa(expired)
+	domain.UserID = userID
+	domain.MembershipCategoryID = categoryID
+	domain.CreatedAt = strconv.Itoa(timeNow)
+	domain.UpdatedAt = strconv.Itoa(timeNow)
+	membershipObj, err = ms.repository.Create(domain)
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	return membershipObj, nil
+}
+
+// GetCategoryByPrice implements domain.Service
+func (ms membershipService) GetCategoryByPrice(price int) (membershipCategoryObj domain.MembershipCategory, err error) {
+	membershipCategoryObj, err = ms.repository.GetCategoryByPrice(price)
+
+	if err != nil {
+		return membershipCategoryObj, err
+	}
+
+	return membershipCategoryObj, nil
 }
 
 // AddOrder implements domain.Service
 func (ms membershipService) InsertOrder(transactionID, price int) (membershipOrderObj domain.MembershipOrder, err error) {
 	var domain domain.MembershipOrder
-	membership, err := ms.repository.GetByPrice(price)
+	membership, err := ms.repository.GetCategoryByPrice(price)
 
 	if err != nil {
 		return membershipOrderObj, err
 	}
 
+	fmt.Println(price)
+	fmt.Println(membership.ID)
 	timeNow, _ := strconv.Atoi(timeHelper.Timestamp())
 	expired := timeNow * membership.Duration
 	domain.Expired = strconv.Itoa(expired)
@@ -49,8 +89,8 @@ func (ms membershipService) InsertOrder(transactionID, price int) (membershipOrd
 }
 
 // DeleteData implements domain.Service
-func (ms membershipService) DeleteData(id int) (err error) {
-	errResp := ms.repository.Delete(id)
+func (ms membershipService) DeleteCategory(id int) (err error) {
+	errResp := ms.repository.DeleteCategory(id)
 
 	if errResp != nil {
 		return errResp
@@ -60,8 +100,8 @@ func (ms membershipService) DeleteData(id int) (err error) {
 }
 
 // UpdateData implements domain.Service
-func (ms membershipService) UpdateData(id int, domain domain.Membership) (membershipObj domain.Membership, err error) {
-	membership, errGetByID := ms.GetByID(id)
+func (ms membershipService) UpdateCategory(id int, domain domain.MembershipCategory) (membershipCategoryObj domain.MembershipCategory, err error) {
+	membership, errGetByID := ms.GetCategoryByID(id)
 
 	if errGetByID != nil {
 		return membership, errGetByID
@@ -71,47 +111,47 @@ func (ms membershipService) UpdateData(id int, domain domain.Membership) (member
 
 	domain.CreatedAt = membership.CreatedAt
 	domain.UpdatedAt = timeHelper.Timestamp()
-	membershipObj, err = ms.repository.Update(id, domain)
+	membershipCategoryObj, err = ms.repository.UpdateCategory(id, domain)
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
-	return membershipObj, nil
+	return membershipCategoryObj, nil
 }
 
 // GetByID implements domain.Service
-func (ms membershipService) GetByID(id int) (membershipObj domain.Membership, err error) {
-	membershipObj, err = ms.repository.GetByID(id)
+func (ms membershipService) GetCategoryByID(id int) (membershipCategoryObj domain.MembershipCategory, err error) {
+	membershipCategoryObj, err = ms.repository.GetCategoryByID(id)
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
-	return membershipObj, nil
+	return membershipCategoryObj, nil
 }
 
-func (ms membershipService) InsertData(domain domain.Membership) (membershipObj domain.Membership, err error) {
+func (ms membershipService) InsertCategory(domain domain.MembershipCategory) (membershipCategoryObj domain.MembershipCategory, err error) {
 	domain.CreatedAt = timeHelper.Timestamp()
 	domain.UpdatedAt = timeHelper.Timestamp()
-	membershipObj, err = ms.repository.Create(domain)
+	membershipCategoryObj, err = ms.repository.CreateCategory(domain)
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
-	return membershipObj, nil
+	return membershipCategoryObj, nil
 }
 
 // GetAllData implements domain.Service
-func (ms membershipService) GetAllData() (membershipObj []domain.Membership, err error) {
-	membershipObj, _ = ms.repository.Get()
+func (ms membershipService) GetAllCategory() (membershipCategoryObj []domain.MembershipCategory, err error) {
+	membershipCategoryObj, _ = ms.repository.GetCategory()
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
-	return membershipObj, nil
+	return membershipCategoryObj, nil
 }
 
 func NewMembershipService(repo domain.Repository) domain.Service {

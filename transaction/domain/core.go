@@ -15,3 +15,11 @@ type Transaction struct {
 	CreatedAt       string
 	UpdatedAt       string
 }
+
+type TransactionDetail struct {
+	ID                   int
+	TransactionID        int
+	MembershipCategoryID int
+	CreatedAt            string
+	UpdatedAt            string
+}

@@ -1,6 +1,7 @@
 package handlerAPI
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -154,9 +155,8 @@ func (uh UserHandler) AddDetail(ctx echo.Context) error {
 }
 
 func (uh UserHandler) GetByEmail(ctx echo.Context) error {
-	var req RequestJSON
-	ctx.Bind(&req)
-	email := req.Email
+	email := ctx.QueryParam("email")
+	fmt.Println(email)
 	userRes, err := uh.service.GetByEmail(email)
 
 	if err != nil {

@@ -1,6 +1,7 @@
 package repoMySQL
 
 import (
+	repoMYSQLM "github.com/kelompok43/Golang/membership/repository/mysql"
 	repoMYSQLTrx "github.com/kelompok43/Golang/transaction/repository/mysql"
 	"github.com/kelompok43/Golang/user/domain"
 	"gorm.io/gorm"
@@ -17,6 +18,7 @@ type User struct {
 	UpdatedAt    string
 	UserDetail   UserDetail
 	Transactions []repoMYSQLTrx.Transaction `gorm:"foreignKey:UserID"`
+	Membership   repoMYSQLM.Membership      `gorm:"foreignKey:UserID"`
 }
 
 type UserDetail struct {

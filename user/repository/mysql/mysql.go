@@ -20,6 +20,7 @@ func (ur userRepository) Update(domain domain.User) (userObj domain.User, err er
 		"id":         rec.ID,
 		"name":       rec.Name,
 		"email":      rec.Email,
+		"status":     rec.Status,
 		"password":   rec.Password,
 		"updated_at": domain.UpdatedAt,
 	}).Error
