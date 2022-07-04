@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
-	"github.com/kelompok43/Golang/helpers/encrypt"
 	encryptHelper "github.com/kelompok43/Golang/helpers/encrypt"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
 	membershipDomain "github.com/kelompok43/Golang/membership/domain"
@@ -21,27 +21,27 @@ type userService struct {
 // UpdateStatus implements domain.Service
 func (us userService) UpdateStatus(id int) (userObj domain.User, err error) {
 	user, err := us.repository.GetByID(id)
+	fmt.Println("id user update ", id)
 
 	if err != nil {
 		return userObj, err
 	}
 
-	status := "Bukan Member"
+	// status := user.Status
 	now, _ := strconv.Atoi(timeHelper.Timestamp())
-	userMember, err := us.membershipService.GetOrderByUserID(id)
+	userMember, _ := us.membershipService.GetByUserID(id)
+	userExpired, _ := strconv.Atoi(userMember.ExpiredAt)
 
-	if err != nil {
-		return userObj, err
+	fmt.Println("user expired = ", userExpired)
+	fmt.Println("now = ", now)
+	fmt.Println("status = ", user.Status)
+	if now < userExpired {
+		user.Status = "Member"
 	}
 
-	for i := range userMember {
-		userExpired, _ := strconv.Atoi(userMember[i].Expired)
-		if userExpired < now {
-			status = "Member"
-		}
-	}
-
-	user.Status = status
+	fmt.Println("status2 = ", user.Status)
+	// user.Status = status
+	user.UpdatedAt = strconv.Itoa(now)
 	userObj, err = us.repository.Update(user)
 
 	if err != nil {
@@ -118,7 +118,7 @@ func (us userService) CreateToken(email, password string) (token string, userObj
 		return token, userObj, err
 	}
 
-	if !encrypt.ValidateHash(password, userObj.Password) {
+	if !encryptHelper.ValidateHash(password, userObj.Password) {
 		return token, userObj, errors.New("email atau kata sandi salah")
 	}
 

@@ -9,32 +9,44 @@ type membershipRepository struct {
 	DB *gorm.DB
 }
 
-// GetByUserID implements domain.Repository
-func (mr membershipRepository) GetByUserID(userID int) (membershipOrderObj []domain.MembershipOrder, err error) {
-	var newRecord []MembershipOrder
-	err = mr.DB.Where("user_id = ?", userID).Find(&newRecord).Error
-
-	if err != nil {
-		return membershipOrderObj, err
-	}
-
-	for _, value := range newRecord {
-		membershipOrderObj = append(membershipOrderObj, orderToDomain(value))
-	}
-
-	return membershipOrderObj, nil
-}
-
-// GetByPrice implements domain.Repository
-func (mr membershipRepository) GetByPrice(price int) (membershipObj domain.Membership, err error) {
-	var newRecord Membership
-	err = mr.DB.Where("price = ?", price).First(&newRecord).Error
+// Create implements domain.Repository
+func (mr membershipRepository) Create(domain domain.Membership) (membershipObj domain.Membership, err error) {
+	newRecord := fromDomain(domain)
+	err = mr.DB.Create(&newRecord).Error
 
 	if err != nil {
 		return membershipObj, err
 	}
 
+	membershipObj = toDomain(newRecord)
 	return membershipObj, nil
+}
+
+// GetByUserID implements domain.Repository
+func (mr membershipRepository) GetByUserID(userID int) (membershipObj domain.Membership, err error) {
+	var newRecord Membership
+	err = mr.DB.Where("user_id = ?", userID).Find(&newRecord).Error
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	membershipObj = toDomain(newRecord)
+
+	return membershipObj, nil
+}
+
+// GetByPrice implements domain.Repository
+func (mr membershipRepository) GetCategoryByPrice(price int) (membershipCategoryObj domain.MembershipCategory, err error) {
+	var newRecord MembershipCategory
+	err = mr.DB.Where("price = ?", price).First(&newRecord).Error
+
+	if err != nil {
+		return membershipCategoryObj, err
+	}
+
+	membershipCategoryObj = categoryToDomain(newRecord)
+	return membershipCategoryObj, nil
 }
 
 // CreateOrder implements domain.Repository
@@ -51,15 +63,15 @@ func (mr membershipRepository) CreateOrder(domain domain.MembershipOrder) (membe
 }
 
 // Delete implements domain.Repository
-func (mr membershipRepository) Delete(id int) (err error) {
-	var record Membership
+func (mr membershipRepository) DeleteCategory(id int) (err error) {
+	var record MembershipCategory
 	return mr.DB.Delete(&record, id).Error
 }
 
 // Update implements domain.Repository
-func (mr membershipRepository) Update(id int, domain domain.Membership) (membershipObj domain.Membership, err error) {
-	var newRecord Membership
-	record := fromDomain(domain)
+func (mr membershipRepository) UpdateCategory(id int, domain domain.MembershipCategory) (membershipCategoryObj domain.MembershipCategory, err error) {
+	var newRecord MembershipCategory
+	record := fromDomainToCategory(domain)
 	err = mr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
 		"id":         id,
 		"category":   record.Category,
@@ -70,54 +82,54 @@ func (mr membershipRepository) Update(id int, domain domain.Membership) (members
 	}).Error
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
-	membershipObj = toDomain(newRecord)
-	return membershipObj, nil
+	membershipCategoryObj = categoryToDomain(newRecord)
+	return membershipCategoryObj, nil
 }
 
 // GetByID implements domain.Repository
-func (mr membershipRepository) GetByID(id int) (domain domain.Membership, err error) {
-	var newRecord Membership
+func (mr membershipRepository) GetCategoryByID(id int) (domain domain.MembershipCategory, err error) {
+	var newRecord MembershipCategory
 	err = mr.DB.First(&newRecord, id).Error
 
 	if err != nil {
 		return domain, err
 	}
 
-	return toDomain(newRecord), nil
+	return categoryToDomain(newRecord), nil
 }
 
 // Get implements domain.Repository
-func (mr membershipRepository) Get() (membershipObj []domain.Membership, err error) {
-	var newRecords []Membership
+func (mr membershipRepository) GetCategory() (membershipCategoryObj []domain.MembershipCategory, err error) {
+	var newRecords []MembershipCategory
 
 	err = mr.DB.Find(&newRecords).Error
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
 	for _, value := range newRecords {
-		membershipObj = append(membershipObj, toDomain(value))
+		membershipCategoryObj = append(membershipCategoryObj, categoryToDomain(value))
 	}
 
-	return membershipObj, nil
+	return membershipCategoryObj, nil
 }
 
 // Create implements domain.Repository
-func (mr membershipRepository) Create(domain domain.Membership) (membershipObj domain.Membership, err error) {
+func (mr membershipRepository) CreateCategory(domain domain.MembershipCategory) (membershipCategoryObj domain.MembershipCategory, err error) {
 	// var recordDetail MembershipDetail
-	newRecord := fromDomain(domain)
+	newRecord := fromDomainToCategory(domain)
 	err = mr.DB.Create(&newRecord).Error
 
 	if err != nil {
-		return membershipObj, err
+		return membershipCategoryObj, err
 	}
 
-	membershipObj = toDomain(newRecord)
-	return membershipObj, nil
+	membershipCategoryObj = categoryToDomain(newRecord)
+	return membershipCategoryObj, nil
 }
 
 func NewMembershipRepository(db *gorm.DB) domain.Repository {

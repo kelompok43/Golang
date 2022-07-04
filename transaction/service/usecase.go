@@ -18,6 +18,26 @@ type transactionService struct {
 	userService       userDomain.Service
 }
 
+// InsertDetail implements domain.Service
+func (ts transactionService) InsertDetail(id int, price int) (transactionDetailObj domain.TransactionDetail, err error) {
+	var transactionDetail domain.TransactionDetail
+	membershipCategory, err := ts.membershipService.GetCategoryByPrice(price)
+
+	if err != nil {
+		return transactionDetailObj, err
+	}
+
+	transactionDetail.TransactionID = id
+	transactionDetail.MembershipCategoryID = membershipCategory.ID
+	transactionDetailObj, err = ts.repository.CreateDetail(transactionDetail)
+
+	if err != nil {
+		return transactionDetailObj, err
+	}
+
+	return transactionDetailObj, nil
+}
+
 // DeleteData implements domain.Service
 func (ts transactionService) DeleteData(id int) (err error) {
 	errResp := ts.repository.Delete(id)
@@ -41,13 +61,20 @@ func (ts transactionService) UpdateStatus(id int, domain domain.Transaction) (tr
 
 	//add user to become a membership
 	if domain.Status == "Diterima" {
-		_, err := ts.membershipService.InsertOrder(transaction.ID, transaction.TotalPrice)
+		trxDetail, err := ts.InsertDetail(transaction.ID, transaction.TotalPrice)
 
 		if err != nil {
 			return transactionObj, err
 		}
 
 		//change status user
+		_, err = ts.membershipService.InsertData(transaction.UserID, trxDetail.MembershipCategoryID)
+
+		if err != nil {
+			return transactionObj, err
+		}
+
+		fmt.Println("trx userID = ", transaction.UserID)
 		_, err = ts.userService.UpdateStatus(transaction.UserID)
 
 		if err != nil {

@@ -56,8 +56,9 @@ func DBMigrate(DB *gorm.DB) {
 		&repoAdmin.Admin{},
 		&repoTrainer.Trainer{},
 		&repoPM.PaymentMethod{},
-		&repoTransaction.Transaction{},
+		&repoMembership.MembershipCategory{},
 		&repoMembership.Membership{},
-		&repoMembership.MembershipOrder{},
+		&repoTransaction.Transaction{},
+		&repoTransaction.TransactionDetail{},
 	)
 }

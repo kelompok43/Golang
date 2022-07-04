@@ -13,8 +13,8 @@ type RequestJSON struct {
 	Duration int    `json:"duration" form:"duration" validate:"required"`
 }
 
-func toDomain(req RequestJSON) domain.Membership {
-	return domain.Membership{
+func toCategoryDomain(req RequestJSON) domain.MembershipCategory {
+	return domain.MembershipCategory{
 		Category: req.Category,
 		Price:    req.Price,
 		Duration: req.Duration,
@@ -30,7 +30,7 @@ type ResponseJSON struct {
 	UpdatedAt time.Time `json:"updated_at" form:"updated_at"`
 }
 
-func fromDomain(domain domain.Membership) ResponseJSON {
+func fromCategoryDomain(domain domain.MembershipCategory) ResponseJSON {
 	//parse unix timestamp to time.Time
 	tmCreatedAt := helperTime.NanoToTime(domain.CreatedAt)
 	tmUpdatedAt := helperTime.NanoToTime(domain.UpdatedAt)

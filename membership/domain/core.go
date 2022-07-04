@@ -1,6 +1,6 @@
 package domain
 
-type Membership struct {
+type MembershipCategory struct {
 	ID        int
 	Category  string
 	Price     int
@@ -16,4 +16,13 @@ type MembershipOrder struct {
 	Expired       string
 	CreatedAt     string
 	UpdatedAt     string
+}
+
+type Membership struct {
+	ID                   int
+	UserID               int
+	MembershipCategoryID int
+	ExpiredAt            string
+	CreatedAt            string
+	UpdatedAt            string
 }
