@@ -3,6 +3,7 @@ package serviceMembership
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
 	"github.com/kelompok43/Golang/membership/domain"
@@ -10,6 +11,28 @@ import (
 
 type membershipService struct {
 	repository domain.Repository
+}
+
+// GetAllData implements domain.Service
+func (ms membershipService) GetAllData() (membershipObj []domain.Membership, err error) {
+	membershipObj, _ = ms.repository.Get()
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	return membershipObj, nil
+}
+
+// GetByID implements domain.Service
+func (ms membershipService) GetByID(id int) (membershipObj domain.Membership, err error) {
+	membershipObj, err = ms.repository.GetByID(id)
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	return membershipObj, nil
 }
 
 // GetByUserID implements domain.Service
@@ -32,15 +55,48 @@ func (ms membershipService) InsertData(userID, categoryID int) (membershipObj do
 		return membershipObj, err
 	}
 
-	fmt.Println(userID)
-	fmt.Println("category", category)
 	timeNow, _ := strconv.Atoi(timeHelper.Timestamp())
-	expired := timeNow * category.Duration
-	domain.ExpiredAt = strconv.Itoa(expired)
+	// expired := timeNow * category.Duration
+
+	if category.Duration == 30 {
+		domain.ExpiredAt = strconv.Itoa(int((time.Now().UnixNano() / 1000000) + 2629743000))
+	}
+
+	/*Human-readable time 	Seconds
+	1 hour	3600000 seconds
+	1 day	86400000 seconds
+	1 week	604800000 seconds
+	1 month (30.44 days) 	2.629.743.000 seconds
+	2592000000
+	2628000000
+	1 year (365.24 days) 	 31556926000 seconds */
+
 	domain.UserID = userID
 	domain.MembershipCategoryID = categoryID
 	domain.CreatedAt = strconv.Itoa(timeNow)
 	domain.UpdatedAt = strconv.Itoa(timeNow)
+	isFound, _ := ms.repository.GetByUserID(userID)
+
+	if isFound.UserID == userID {
+		membership, err := ms.repository.GetByID(isFound.ID)
+
+		if err != nil {
+			return membershipObj, err
+		}
+
+		domain.ExpiredAt = strconv.Itoa(int((time.Now().UnixNano() / 1000000) + 2629743000))
+		fmt.Println("expired  at update", domain.ExpiredAt)
+		domain.CreatedAt = membership.CreatedAt
+		domain.ID = membership.ID
+		membershipObj, err = ms.repository.Update(membership.ID, domain)
+
+		if err != nil {
+			return membershipObj, err
+		}
+
+		return membershipObj, nil
+	}
+
 	membershipObj, err = ms.repository.Create(domain)
 
 	if err != nil {
@@ -59,33 +115,6 @@ func (ms membershipService) GetCategoryByPrice(price int) (membershipCategoryObj
 	}
 
 	return membershipCategoryObj, nil
-}
-
-// AddOrder implements domain.Service
-func (ms membershipService) InsertOrder(transactionID, price int) (membershipOrderObj domain.MembershipOrder, err error) {
-	var domain domain.MembershipOrder
-	membership, err := ms.repository.GetCategoryByPrice(price)
-
-	if err != nil {
-		return membershipOrderObj, err
-	}
-
-	fmt.Println(price)
-	fmt.Println(membership.ID)
-	timeNow, _ := strconv.Atoi(timeHelper.Timestamp())
-	expired := timeNow * membership.Duration
-	domain.Expired = strconv.Itoa(expired)
-	domain.MembershipID = membership.ID
-	domain.TransactionID = transactionID
-	domain.CreatedAt = strconv.Itoa(timeNow)
-	domain.UpdatedAt = strconv.Itoa(timeNow)
-	membershipOrderObj, err = ms.repository.CreateOrder(domain)
-
-	if err != nil {
-		return membershipOrderObj, err
-	}
-
-	return membershipOrderObj, nil
 }
 
 // DeleteData implements domain.Service

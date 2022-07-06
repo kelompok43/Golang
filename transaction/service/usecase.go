@@ -18,6 +18,36 @@ type transactionService struct {
 	userService       userDomain.Service
 }
 
+func (ts transactionService) GetUserTrx(userID int) (transactionObj []domain.Transaction, err error) {
+	transactionObj, err = ts.repository.GetByUserID(userID)
+
+	if err != nil {
+		return transactionObj, err
+	}
+
+	return transactionObj, nil
+}
+
+func (ts transactionService) GetUserTrxByID(userID, trxID int) (transactionObj domain.Transaction, err error) {
+	userTransaction, err := ts.repository.GetByUserID(userID)
+
+	if err != nil {
+		return transactionObj, err
+	}
+
+	for _, value := range userTransaction {
+		if value.ID == trxID {
+			transactionObj, err = ts.repository.GetByID(trxID)
+
+			if err != nil {
+				return transactionObj, err
+			}
+		}
+	}
+
+	return transactionObj, nil
+}
+
 // InsertDetail implements domain.Service
 func (ts transactionService) InsertDetail(id int, price int) (transactionDetailObj domain.TransactionDetail, err error) {
 	var transactionDetail domain.TransactionDetail

@@ -18,6 +18,10 @@ type RequestLoginJSON struct {
 	Password string `json:"password" form:"password" validate:"required,min=8"`
 }
 
+type RequestPasswordJSON struct {
+	Password string `json:"password" form:"password" validate:"required,min=8"`
+}
+
 type RequestDetailJSON struct {
 	UserID  int
 	Phone   string `json:"phone" form:"phone" validate:"required"`
@@ -28,6 +32,12 @@ type RequestDetailJSON struct {
 
 type Token struct {
 	Token string `json:"token"`
+}
+
+func pwdToDomain(req RequestPasswordJSON) domain.User {
+	return domain.User{
+		Password: req.Password,
+	}
 }
 
 func toDomain(req RequestJSON) domain.User {

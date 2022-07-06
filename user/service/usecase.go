@@ -53,9 +53,21 @@ func (us userService) UpdateStatus(id int) (userObj domain.User, err error) {
 
 // ChangePassword implements domain.Service
 func (us userService) ChangePassword(id int, domain domain.User) (userObj domain.User, err error) {
-	domain.ID = id
-	domain.UpdatedAt = timeHelper.Timestamp()
-	userObj, err = us.repository.Update(domain)
+	user, err := us.repository.GetByID(id)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	user.ID = id
+	user.Password, err = encryptHelper.Hash(domain.Password)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	user.UpdatedAt = timeHelper.Timestamp()
+	userObj, err = us.repository.Update(user)
 
 	if err != nil {
 		return userObj, err

@@ -9,6 +9,56 @@ type membershipRepository struct {
 	DB *gorm.DB
 }
 
+// Update implements domain.Repository
+func (mr membershipRepository) Update(id int, domain domain.Membership) (membershipObj domain.Membership, err error) {
+	var newRecord Membership
+	record := fromDomain(domain)
+	err = mr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
+		"id":                     id,
+		"user_id":                record.UserID,
+		"membership_category_id": record.MembershipCategoryID,
+		"expired_at":             record.ExpiredAt,
+		"created_at":             record.CreatedAt,
+		"updated_at":             record.UpdatedAt,
+	}).Error
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	membershipObj = toDomain(newRecord)
+	return membershipObj, nil
+}
+
+// Get implements domain.Repository
+func (mr membershipRepository) Get() (membershipObj []domain.Membership, err error) {
+	var newRecord []Membership
+
+	err = mr.DB.Find(&newRecord).Error
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	for _, value := range newRecord {
+		membershipObj = append(membershipObj, toDomain(value))
+	}
+
+	return membershipObj, nil
+}
+
+// GetByID implements domain.Repository
+func (mr membershipRepository) GetByID(id int) (membershipObj domain.Membership, err error) {
+	var newRecord Membership
+	err = mr.DB.First(&newRecord, id).Error
+
+	if err != nil {
+		return membershipObj, err
+	}
+
+	return toDomain(newRecord), nil
+}
+
 // Create implements domain.Repository
 func (mr membershipRepository) Create(domain domain.Membership) (membershipObj domain.Membership, err error) {
 	newRecord := fromDomain(domain)
@@ -47,19 +97,6 @@ func (mr membershipRepository) GetCategoryByPrice(price int) (membershipCategory
 
 	membershipCategoryObj = categoryToDomain(newRecord)
 	return membershipCategoryObj, nil
-}
-
-// CreateOrder implements domain.Repository
-func (mr membershipRepository) CreateOrder(domain domain.MembershipOrder) (membershipOrderObj domain.MembershipOrder, err error) {
-	newRecord := fromDomainToOrder(domain)
-	err = mr.DB.Create(&newRecord).Error
-
-	if err != nil {
-		return membershipOrderObj, err
-	}
-
-	membershipOrderObj = orderToDomain(newRecord)
-	return membershipOrderObj, nil
 }
 
 // Delete implements domain.Repository

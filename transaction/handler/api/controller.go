@@ -145,3 +145,49 @@ func (th TransactionHandler) DeleteData(ctx echo.Context) error {
 		"rescode": 200,
 	})
 }
+
+func (th TransactionHandler) GetUserTrx(ctx echo.Context) error {
+	userId, _ := strconv.Atoi(ctx.Param("id"))
+
+	transactionRes, err := th.service.GetUserTrx(userId)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	transactionObj := []ResponseJSON{}
+
+	for _, value := range transactionRes {
+		transactionObj = append(transactionObj, fromDomain(value))
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    transactionObj,
+	})
+}
+
+func (th TransactionHandler) GetUserTrxByID(ctx echo.Context) error {
+	userId, _ := strconv.Atoi(ctx.Param("id"))
+	trxId, _ := strconv.Atoi(ctx.Param("trx_id"))
+
+	transactionRes, err := th.service.GetUserTrxByID(userId, trxId)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	transactionObj := fromDomain(transactionRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    transactionObj,
+	})
+}

@@ -60,17 +60,6 @@ func categoryToDomain(rec MembershipCategory) domain.MembershipCategory {
 	}
 }
 
-func orderToDomain(rec MembershipOrder) domain.MembershipOrder {
-	return domain.MembershipOrder{
-		ID:            rec.ID,
-		TransactionID: rec.TransactionID,
-		MembershipID:  rec.MembershipID,
-		Expired:       rec.Expired,
-		CreatedAt:     rec.CreatedAt,
-		UpdatedAt:     rec.UpdatedAt,
-	}
-}
-
 func fromDomain(rec domain.Membership) Membership {
 	return Membership{
 		ID:                   rec.ID,
@@ -90,16 +79,5 @@ func fromDomainToCategory(rec domain.MembershipCategory) MembershipCategory {
 		Duration:  rec.Duration,
 		CreatedAt: rec.CreatedAt,
 		UpdatedAt: rec.UpdatedAt,
-	}
-}
-
-func fromDomainToOrder(rec domain.MembershipOrder) MembershipOrder {
-	return MembershipOrder{
-		ID:            rec.ID,
-		TransactionID: rec.TransactionID,
-		MembershipID:  rec.MembershipID,
-		Expired:       rec.Expired,
-		CreatedAt:     rec.CreatedAt,
-		UpdatedAt:     rec.UpdatedAt,
 	}
 }
