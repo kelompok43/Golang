@@ -9,15 +9,6 @@ type MembershipCategory struct {
 	UpdatedAt string
 }
 
-type MembershipOrder struct {
-	ID            int
-	TransactionID int
-	MembershipID  int
-	Expired       string
-	CreatedAt     string
-	UpdatedAt     string
-}
-
 type Membership struct {
 	ID                   int
 	UserID               int

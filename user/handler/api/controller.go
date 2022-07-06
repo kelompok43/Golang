@@ -175,7 +175,7 @@ func (uh UserHandler) GetByEmail(ctx echo.Context) error {
 }
 
 func (uh UserHandler) ChangePassword(ctx echo.Context) error {
-	var req RequestJSON
+	var req RequestPasswordJSON
 	ctx.Bind(&req)
 	id, err := strconv.Atoi(ctx.Param("id"))
 
@@ -185,7 +185,17 @@ func (uh UserHandler) ChangePassword(ctx echo.Context) error {
 			"rescode": http.StatusBadRequest,
 		})
 	}
-	userRes, err := uh.service.ChangePassword(id, toDomain(req))
+
+	err = uh.validation.Struct(req)
+
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	userRes, err := uh.service.ChangePassword(id, pwdToDomain(req))
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{

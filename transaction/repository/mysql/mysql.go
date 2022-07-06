@@ -11,6 +11,22 @@ type transactionRepository struct {
 	DB *gorm.DB
 }
 
+// GetByUserID implements domain.Repository
+func (tr transactionRepository) GetByUserID(userID int) (transactionObj []domain.Transaction, err error) {
+	var newRecord []Transaction
+	err = tr.DB.Where("user_id = ?", userID).Find(&newRecord).Error
+
+	if err != nil {
+		return transactionObj, err
+	}
+
+	for _, value := range newRecord {
+		transactionObj = append(transactionObj, toDomain(value))
+	}
+
+	return transactionObj, nil
+}
+
 // CreateDetail implements domain.Repository
 func (tr transactionRepository) CreateDetail(domain domain.TransactionDetail) (transactionDetailObj domain.TransactionDetail, err error) {
 	newRecord := fromDomainToDetail(domain)
@@ -55,12 +71,12 @@ func (tr transactionRepository) Update(id int, domain domain.Transaction) (trans
 }
 
 // GetByID implements domain.Repository
-func (tr transactionRepository) GetByID(id int) (domain domain.Transaction, err error) {
+func (tr transactionRepository) GetByID(id int) (transactionObj domain.Transaction, err error) {
 	var newRecord Transaction
 	err = tr.DB.First(&newRecord, id).Error
 
 	if err != nil {
-		return domain, err
+		return transactionObj, err
 	}
 
 	return toDomain(newRecord), nil
