@@ -4,7 +4,8 @@ import (
 	"errors"
 	"time"
 
-	handlerAPI "github.com/kelompok43/Golang/user/handler/api"
+	adminHandlerAPI "github.com/kelompok43/Golang/admin/handler/api"
+	userHandlerAPI "github.com/kelompok43/Golang/user/handler/api"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/kelompok43/Golang/auth"
@@ -52,15 +53,36 @@ func GetUser(ctx echo.Context) *JWTCustomClaim {
 	return claims
 }
 
-func UserValidation(status string, userController handlerAPI.UserHandler) echo.MiddlewareFunc {
+func UserValidation(status string, userController userHandlerAPI.UserHandler) echo.MiddlewareFunc {
 	return func(hf echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			claims := GetUser(ctx)
 			userStatus, err := userController.UserStatus(claims.ID)
+
 			if err != nil {
 				return errors.New("user tidak ditemukan")
 			}
+
 			if userStatus == status {
+				return hf(ctx)
+			} else {
+				return errors.New("status tidak ditemukan")
+			}
+		}
+	}
+}
+
+func AdminValidation(Role string, adminController adminHandlerAPI.AdminHandler) echo.MiddlewareFunc {
+	return func(hf echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			claims := GetUser(ctx)
+			adminRole, err := adminController.AdminRole(claims.ID)
+
+			if err != nil {
+				return errors.New("admin tidak ditemukan")
+			}
+
+			if adminRole == Role {
 				return hf(ctx)
 			} else {
 				return errors.New("status tidak ditemukan")
