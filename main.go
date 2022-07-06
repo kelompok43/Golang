@@ -55,9 +55,12 @@ func main() {
 	userGroup.GET("/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
 	userGroup.GET("/profile/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
 	userGroup.POST("/profile/detail/:id", user.AddDetail, middleware.JWTWithConfig(cJWT))
+	userGroup.GET("/:id/transaction", transaction.GetUserTrx)
+	userGroup.GET("/:id/transaction/:trx_id", transaction.GetUserTrxByID)
 	userGroup.GET("/get-email", user.GetByEmail)
-	userGroup.PUT("/change-password/:id", user.ChangePassword)
-	userGroup.PUT("/membership/status/:id", user.UpdateStatus, middleware.JWTWithConfig(cJWT))
+	userGroup.PUT("/:id/change-password", user.ChangePassword)
+	userGroup.GET("/:id/membership", membership.GetByUserID)
+	userGroup.PUT("/:id/membership/status", user.UpdateStatus)
 	userGroup.POST("/login", user.Login)
 	userGroup.POST("/register", user.Register)
 
@@ -93,6 +96,8 @@ func main() {
 	transactionGroup.DELETE("/:id", transaction.DeleteData)
 
 	membershipGroup := e.Group("/membership")
+	membershipGroup.GET("", membership.GetAllData)
+	membershipGroup.GET("/:id", membership.GetByID)
 	membershipGroup.POST("/category", membership.AddCategory, middleware.JWTWithConfig(cJWT))
 	membershipGroup.GET("/category", membership.GetAllCategory)
 	membershipGroup.GET("/category/:id", membership.GetCategoryByID)

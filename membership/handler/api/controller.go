@@ -22,7 +22,7 @@ func NewMembershipHandler(service domain.Service) MembershipHandler {
 }
 
 func (mh MembershipHandler) AddCategory(ctx echo.Context) error {
-	var req RequestJSON
+	var req RequestCategoryJSON
 	ctx.Bind(&req)
 	errVal := mh.validation.Struct(req)
 
@@ -49,7 +49,7 @@ func (mh MembershipHandler) AddCategory(ctx echo.Context) error {
 }
 
 func (mh MembershipHandler) GetAllCategory(ctx echo.Context) error {
-	trainerRes, err := mh.service.GetAllCategory()
+	categoryRes, err := mh.service.GetAllCategory()
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -58,22 +58,22 @@ func (mh MembershipHandler) GetAllCategory(ctx echo.Context) error {
 		})
 	}
 
-	trainerObj := []ResponseJSON{}
+	categoryObj := []ResponseCategoryJSON{}
 
-	for _, value := range trainerRes {
-		trainerObj = append(trainerObj, fromCategoryDomain(value))
+	for _, value := range categoryRes {
+		categoryObj = append(categoryObj, fromCategoryDomain(value))
 	}
 
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": http.StatusOK,
-		"data":    trainerObj,
+		"data":    categoryObj,
 	})
 }
 
 func (mh MembershipHandler) GetCategoryByID(ctx echo.Context) error {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	trainerRes, err := mh.service.GetCategoryByID(id)
+	categoryRes, err := mh.service.GetCategoryByID(id)
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -82,16 +82,16 @@ func (mh MembershipHandler) GetCategoryByID(ctx echo.Context) error {
 		})
 	}
 
-	trainerObj := fromCategoryDomain(trainerRes)
+	categoryObj := fromCategoryDomain(categoryRes)
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": http.StatusOK,
-		"data":    trainerObj,
+		"data":    categoryObj,
 	})
 }
 
 func (mh MembershipHandler) UpdateCategory(ctx echo.Context) error {
-	var req RequestJSON
+	var req RequestCategoryJSON
 	ctx.Bind(&req)
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	err := mh.validation.Struct(req)
@@ -103,7 +103,7 @@ func (mh MembershipHandler) UpdateCategory(ctx echo.Context) error {
 		})
 	}
 
-	trainerRes, err := mh.service.UpdateCategory(id, toCategoryDomain(req))
+	categoryRes, err := mh.service.UpdateCategory(id, toCategoryDomain(req))
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
@@ -112,11 +112,11 @@ func (mh MembershipHandler) UpdateCategory(ctx echo.Context) error {
 		})
 	}
 
-	trainerObj := fromCategoryDomain(trainerRes)
+	categoryObj := fromCategoryDomain(categoryRes)
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": 200,
-		"data":    trainerObj,
+		"data":    categoryObj,
 	})
 }
 
@@ -134,5 +134,83 @@ func (mh MembershipHandler) DeleteCategory(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, map[string]interface{}{
 		"message": "success",
 		"rescode": 200,
+	})
+}
+
+func (mh MembershipHandler) GetAllData(ctx echo.Context) error {
+	membershipRes, err := mh.service.GetAllData()
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	membershipObj := []ResponseJSON{}
+
+	for _, value := range membershipRes {
+		membershipObj = append(membershipObj, fromDomain(value))
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    membershipObj,
+	})
+}
+
+func (mh MembershipHandler) GetByID(ctx echo.Context) error {
+	id, err := strconv.Atoi(ctx.Param("id"))
+
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	membershipRes, err := mh.service.GetByID(id)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	membershipObj := fromDomain(membershipRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    membershipObj,
+	})
+
+}
+
+func (mh MembershipHandler) GetByUserID(ctx echo.Context) error {
+	userId, err := strconv.Atoi(ctx.Param("id"))
+
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	membershipRes, err := mh.service.GetByUserID(userId)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	membershipObj := fromDomain(membershipRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": 200,
+		"data":    membershipObj,
 	})
 }
