@@ -14,6 +14,7 @@ import (
 	"github.com/kelompok43/Golang/transaction"
 	"github.com/kelompok43/Golang/user"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func init() {
@@ -41,11 +42,13 @@ func main() {
 	transaction := transaction.NewTransactionFactory(db, configJWT)
 
 	e := echo.New()
+	authMiddleware.LogMiddlewares(e)
+	cJWT := configJWT.Init()
 
 	userGroup := e.Group("/user")
 	userGroup.GET("", user.GetAllData)
-	userGroup.GET("/:id", user.GetByID)
-	userGroup.GET("/profile/:id", user.GetByID)
+	userGroup.GET("/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
+	userGroup.GET("/profile/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
 	userGroup.POST("/profile/detail/:id", user.AddDetail)
 	userGroup.GET("/:id/transaction", transaction.GetUserTrx)
 	userGroup.GET("/:id/transaction/:trx_id", transaction.GetUserTrxByID)
@@ -78,7 +81,7 @@ func main() {
 	paymentGroup.PUT("/method/:id", paymentMethod.UpdateData)
 	paymentGroup.DELETE("/method/:id", paymentMethod.DeleteData)
 
-	transactionGroup := e.Group("/transaction")
+	transactionGroup := e.Group("/transaction", middleware.JWTWithConfig(cJWT))
 	transactionGroup.POST("", transaction.AddData)
 	transactionGroup.GET("", transaction.GetAllData)
 	transactionGroup.GET("/:id", transaction.GetByID)
