@@ -1,24 +1,26 @@
 package repoMySQL
 
 import (
+	repoMySQLC "github.com/kelompok43/Golang/class/repository/mysql"
 	"github.com/kelompok43/Golang/trainer/domain"
 	"gorm.io/gorm"
 )
 
 type Trainer struct {
 	gorm.Model
-	ID      int
-	Name    string
-	Email   string
-	DOB     string
-	Gender  string
-	Phone   string
-	Address string
-	// Picture   string
-	PictureLink string
-	Field       string
-	CreatedAt   string
-	UpdatedAt   string
+	ID             int
+	Name           string
+	Email          string
+	DOB            string
+	Gender         string
+	Phone          string
+	Address        string
+	PictureLink    string
+	Field          string
+	CreatedAt      string
+	UpdatedAt      string
+	OnlineClasses  []repoMySQLC.OnlineClass  `gorm:"foreignKey:TrainerID"`
+	OfflineClasses []repoMySQLC.OfflineClass `gorm:"foreignKey:TrainerID"`
 }
 
 func toDomain(rec Trainer) domain.Trainer {

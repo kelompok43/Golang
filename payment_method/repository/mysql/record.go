@@ -14,7 +14,7 @@ type PaymentMethod struct {
 	AccName      string
 	CreatedAt    string
 	UpdatedAt    string
-	Transactions []repoMYSQLTrx.Transaction `gorm:"foreignKey:UserID"`
+	Transactions []repoMYSQLTrx.Transaction `gorm:"foreignKey:PaymentMethodID"`
 }
 
 func toDomain(rec PaymentMethod) domain.PaymentMethod {

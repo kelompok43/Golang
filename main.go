@@ -7,6 +7,7 @@ import (
 	"github.com/kelompok43/Golang/admin"
 	"github.com/kelompok43/Golang/auth"
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
+	"github.com/kelompok43/Golang/class"
 	"github.com/kelompok43/Golang/config"
 	"github.com/kelompok43/Golang/membership"
 	"github.com/kelompok43/Golang/payment_method"
@@ -40,6 +41,7 @@ func main() {
 	paymentMethod := payment_method.NewPaymentMethodFactory(db)
 	membership := membership.NewMembershipFactory(db)
 	transaction := transaction.NewTransactionFactory(db, configJWT)
+	class := class.NewClassFactory(db)
 
 	e := echo.New()
 	authMiddleware.LogMiddlewares(e)
@@ -103,6 +105,15 @@ func main() {
 	membershipGroup.GET("/category/:id", membership.GetCategoryByID)
 	membershipGroup.PUT("/category/:id", membership.UpdateCategory, middleware.JWTWithConfig(cJWT))
 	membershipGroup.DELETE("/category/:id", membership.DeleteCategory, middleware.JWTWithConfig(cJWT))
+
+	classGroup := e.Group("/class")
+	classGroup.POST("/category", class.AddCategory)
+	classGroup.GET("/category", class.GetAllCategory)
+	classGroup.GET("/category/:id", class.GetCategoryByID)
+	classGroup.PUT("/category/:id", class.UpdateCategory)
+	classGroup.DELETE("/category/:id", class.DeleteCategory)
+	classGroup.POST("/online", class.AddOnline)
+	classGroup.GET("/online", class.GetAllOnline)
 
 	e.Start(":9700")
 }
