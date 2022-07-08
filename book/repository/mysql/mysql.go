@@ -62,11 +62,11 @@ func (br bookRepository) UpdateOfflineClass(id int, domain domain.OfflineClass) 
 	var newRecord BookOfflineClass
 	record := fromOfflineClassDomain(domain)
 	err = br.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
-		"id":         id,
-		"user_id":    domain.UserID,
-		"class_id":   domain.ClassID,
-		"created_at": record.CreatedAt,
-		"updated_at": record.UpdatedAt,
+		"id":               id,
+		"user_id":          domain.UserID,
+		"offline_class_id": domain.OfflineClassID,
+		"created_at":       record.CreatedAt,
+		"updated_at":       record.UpdatedAt,
 	}).Error
 
 	if err != nil {
@@ -130,11 +130,11 @@ func (br bookRepository) UpdateOnlineClass(id int, domain domain.OnlineClass) (o
 	var newRecord BookOnlineClass
 	record := fromOnlineClassDomain(domain)
 	err = br.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
-		"id":         id,
-		"user_id":    record.UserID,
-		"class_id":   record.ClassID,
-		"created_at": record.CreatedAt,
-		"updated_at": record.UpdatedAt,
+		"id":              id,
+		"user_id":         record.UserID,
+		"online_class_id": record.OnlineClassID,
+		"created_at":      record.CreatedAt,
+		"updated_at":      record.UpdatedAt,
 	}).Error
 
 	if err != nil {

@@ -1,6 +1,7 @@
 package repoMySQL
 
 import (
+	repoMYSQLB "github.com/kelompok43/Golang/book/repository/mysql"
 	"github.com/kelompok43/Golang/class/domain"
 	"gorm.io/gorm"
 )
@@ -19,29 +20,31 @@ type ClassCategory struct {
 
 type OnlineClass struct {
 	gorm.Model
-	ID              int
-	ClassCategoryID int
-	TrainerID       int
-	Date            string
-	StartedAt       string
-	EndedAt         string
-	Link            string
-	CreatedAt       string
-	UpdatedAt       string
+	ID                int
+	ClassCategoryID   int
+	TrainerID         int
+	Date              string
+	StartedAt         string
+	EndedAt           string
+	Link              string
+	CreatedAt         string
+	UpdatedAt         string
+	BookOnlineClasses []repoMYSQLB.BookOnlineClass `gorm:"foreignKey:OnlineClassID"`
 }
 
 type OfflineClass struct {
 	gorm.Model
-	ID              int
-	ClassCategoryID int
-	TrainerID       int
-	Date            string
-	StartedAt       string
-	EndedAt         string
-	Place           string
-	Quota           int
-	CreatedAt       string
-	UpdatedAt       string
+	ID                 int
+	ClassCategoryID    int
+	TrainerID          int
+	Date               string
+	StartedAt          string
+	EndedAt            string
+	Place              string
+	Quota              int
+	CreatedAt          string
+	UpdatedAt          string
+	BookOfflineClasses []repoMYSQLB.BookOfflineClass `gorm:"foreignKey:OfflineClassID"`
 }
 
 func toCategoryDomain(rec ClassCategory) domain.Category {
