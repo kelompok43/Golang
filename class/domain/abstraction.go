@@ -11,6 +11,11 @@ type Service interface {
 	GetOnlineByID(id int) (onlineClassObj Online, err error)
 	UpdateOnline(id int, domain Online) (onlineClassObj Online, err error)
 	DeleteOnline(id int) (err error)
+	InsertOffline(domain Offline) (offlineClassObj Offline, err error)
+	GetAllOffline() (offlineClassObj []Offline, err error)
+	GetOfflineByID(id int) (offlineClassObj Offline, err error)
+	UpdateOffline(id int, domain Offline) (offlineClassObj Offline, err error)
+	DeleteOffline(id int) (err error)
 }
 
 type Repository interface {
@@ -24,4 +29,9 @@ type Repository interface {
 	GetOnlineByID(id int) (onlineClassObj Online, err error)
 	UpdateOnline(id int, domain Online) (onlineClassObj Online, err error)
 	DeleteOnline(id int) (err error)
+	CreateOffline(domain Offline) (offlineClassObj Offline, err error)
+	GetOffline() (offlineClassObj []Offline, err error)
+	GetOfflineByID(id int) (offlineClassObj Offline, err error)
+	UpdateOffline(id int, domain Offline) (offlineClassObj Offline, err error)
+	DeleteOffline(id int) (err error)
 }

@@ -63,5 +63,6 @@ func DBMigrate(DB *gorm.DB) {
 		&repoTransaction.TransactionDetail{},
 		&repoClass.ClassCategory{},
 		&repoClass.OnlineClass{},
+		&repoClass.OfflineClass{},
 	)
 }

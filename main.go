@@ -92,8 +92,6 @@ func main() {
 	transactionGroup.POST("", transaction.AddData)
 	transactionGroup.GET("", transaction.GetAllData)
 	transactionGroup.GET("/:id", transaction.GetByID)
-	// transactionGroup.GET("", transaction.GetByID) // /transaction?user_id=1
-	// transactionGroup.GET("", transaction.GetByID) // /transaction?user_id=1&?trx_id=1
 	transactionGroup.PUT("/:id", transaction.UpdateStatus)
 	transactionGroup.DELETE("/:id", transaction.DeleteData)
 
@@ -114,6 +112,14 @@ func main() {
 	classGroup.DELETE("/category/:id", class.DeleteCategory)
 	classGroup.POST("/online", class.AddOnline)
 	classGroup.GET("/online", class.GetAllOnline)
+	classGroup.GET("/online/:id", class.GetOnlineByID)
+	classGroup.PUT("/online/:id", class.UpdateOnline)
+	classGroup.DELETE("/online/:id", class.DeleteOnline)
+	classGroup.POST("/offline", class.AddOffline)
+	classGroup.GET("/offline", class.GetAllOffline)
+	classGroup.GET("/offline/:id", class.GetOfflineByID)
+	classGroup.PUT("/offline/:id", class.UpdateOffline)
+	classGroup.DELETE("/offline/:id", class.DeleteOffline)
 
 	e.Start(":9700")
 }
