@@ -256,3 +256,119 @@ func (th ClassHandler) DeleteOnline(ctx echo.Context) error {
 		"rescode": 200,
 	})
 }
+
+func (th ClassHandler) AddOffline(ctx echo.Context) error {
+	var req RequestOfflineJSON
+	ctx.Bind(&req)
+	errVal := th.validation.Struct(req)
+
+	if errVal != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": errVal.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	_, err := th.service.InsertOffline(toOfflineDomain(req))
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+	})
+}
+
+func (th ClassHandler) GetAllOffline(ctx echo.Context) error {
+	offlineRes, err := th.service.GetAllOffline()
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	offlineObj := []ResponseOfflineJSON{}
+
+	for _, value := range offlineRes {
+		offlineObj = append(offlineObj, fromOfflineDomain(value))
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    offlineObj,
+	})
+}
+
+func (th ClassHandler) GetOfflineByID(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	offlineRes, err := th.service.GetOfflineByID(id)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	offlineObj := fromOfflineDomain(offlineRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    offlineObj,
+	})
+}
+
+func (th ClassHandler) UpdateOffline(ctx echo.Context) error {
+	var req RequestOfflineJSON
+	ctx.Bind(&req)
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	err := th.validation.Struct(req)
+
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	offlineRes, err := th.service.UpdateOffline(id, toOfflineDomain(req))
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	offlineObj := fromOfflineDomain(offlineRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": 200,
+		"data":    offlineObj,
+	})
+}
+
+func (th ClassHandler) DeleteOffline(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	err := th.service.DeleteOffline(id)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": 200,
+	})
+}

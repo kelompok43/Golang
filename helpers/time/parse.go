@@ -2,6 +2,7 @@ package time
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -19,16 +20,17 @@ func JustDate(dateString string) (dateParse time.Time, err error) {
 	return dateParse, nil
 }
 
-func JustTime(timeString string) (timeParse time.Time, err error) {
+func DateTime(dateString, timeString string) (dateTimeParse string, err error) {
 	var layoutFormat, value string
 
-	layoutFormat = "08:00:00 Z0700"
-	value = fmt.Sprintf("%s:00", timeString)
-	timeParse, err = time.Parse(layoutFormat, value)
+	layoutFormat = "2006-01-02 15:04:05"
+	value = fmt.Sprintf("%s %s:00", dateString, timeString)
+	dateTime, err := time.ParseInLocation(layoutFormat, value, time.Local)
 
 	if err != nil {
-		return timeParse, err
+		return dateTimeParse, err
 	}
 
-	return timeParse, nil
+	dateTimeParse = strconv.Itoa(int(dateTime.UnixNano() / 1000000))
+	return dateTimeParse, nil
 }

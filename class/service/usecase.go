@@ -13,9 +13,80 @@ type classService struct {
 	repository domain.Repository
 }
 
+// DeleteOffline implements domain.Service
+func (cs classService) DeleteOffline(id int) (err error) {
+	errResp := cs.repository.DeleteOffline(id)
+
+	if errResp != nil {
+		return errResp
+	}
+
+	return nil
+}
+
+// GetAllOffline implements domain.Service
+func (cs classService) GetAllOffline() (offlineClassObj []domain.Offline, err error) {
+	offlineClassObj, _ = cs.repository.GetOffline()
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	return offlineClassObj, nil
+}
+
+// GetOfflineByID implements domain.Service
+func (cs classService) GetOfflineByID(id int) (offlineClassObj domain.Offline, err error) {
+	offlineClassObj, err = cs.repository.GetOfflineByID(id)
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	return offlineClassObj, nil
+}
+
+// InsertOffline implements domain.Service
+func (cs classService) InsertOffline(domain domain.Offline) (offlineClassObj domain.Offline, err error) {
+	domain.CreatedAt = timeHelper.Timestamp()
+	domain.UpdatedAt = timeHelper.Timestamp()
+	offlineClassObj, err = cs.repository.CreateOffline(domain)
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	return offlineClassObj, nil
+}
+
+// UpdateOffline implements domain.Service
+func (cs classService) UpdateOffline(id int, domain domain.Offline) (offlineClassObj domain.Offline, err error) {
+	offlineClass, errGetByID := cs.GetOfflineByID(id)
+
+	if errGetByID != nil {
+		return offlineClass, errGetByID
+	}
+
+	domain.CreatedAt = offlineClass.CreatedAt
+	domain.UpdatedAt = timeHelper.Timestamp()
+	offlineClassObj, err = cs.repository.UpdateOffline(id, domain)
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	return offlineClassObj, nil
+}
+
 // DeleteOnline implements domain.Service
 func (cs classService) DeleteOnline(id int) (err error) {
-	panic("unimplemented")
+	errResp := cs.repository.DeleteOnline(id)
+
+	if errResp != nil {
+		return errResp
+	}
+
+	return nil
 }
 
 // GetAllOnline implements domain.Service
@@ -31,7 +102,13 @@ func (cs classService) GetAllOnline() (onlineClassObj []domain.Online, err error
 
 // GetOnlineByID implements domain.Service
 func (cs classService) GetOnlineByID(id int) (onlineClassObj domain.Online, err error) {
-	panic("unimplemented")
+	onlineClassObj, err = cs.repository.GetOnlineByID(id)
+
+	if err != nil {
+		return onlineClassObj, err
+	}
+
+	return onlineClassObj, nil
 }
 
 // InsertOnline implements domain.Service
@@ -49,7 +126,21 @@ func (cs classService) InsertOnline(domain domain.Online) (onlineClassObj domain
 
 // UpdateOnline implements domain.Service
 func (cs classService) UpdateOnline(id int, domain domain.Online) (onlineClassObj domain.Online, err error) {
-	panic("unimplemented")
+	onlineClass, errGetByID := cs.GetOnlineByID(id)
+
+	if errGetByID != nil {
+		return onlineClass, errGetByID
+	}
+
+	domain.CreatedAt = onlineClass.CreatedAt
+	domain.UpdatedAt = timeHelper.Timestamp()
+	onlineClassObj, err = cs.repository.UpdateOnline(id, domain)
+
+	if err != nil {
+		return onlineClassObj, err
+	}
+
+	return onlineClassObj, nil
 }
 
 // DeleteCategory implements domain.Service
@@ -65,15 +156,15 @@ func (cs classService) DeleteCategory(id int) (err error) {
 
 // UpdateCategory implements domain.Service
 func (cs classService) UpdateCategory(id int, domain domain.Category) (categoryObj domain.Category, err error) {
-	trainer, errGetByID := cs.GetCategoryByID(id)
+	category, errGetByID := cs.GetCategoryByID(id)
 
 	if errGetByID != nil {
-		return trainer, errGetByID
+		return category, errGetByID
 	}
 
-	domain.CreatedAt = trainer.CreatedAt
+	domain.CreatedAt = category.CreatedAt
 	domain.UpdatedAt = timeHelper.Timestamp()
-	domain.PictureLink = trainer.PictureLink
+	domain.PictureLink = category.PictureLink
 	categoryObj, err = cs.repository.UpdateCategory(id, domain)
 
 	if err != nil {

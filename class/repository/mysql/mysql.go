@@ -11,6 +11,79 @@ type classRepository struct {
 	DB *gorm.DB
 }
 
+// CreateOffline implements domain.Repository
+func (cr classRepository) CreateOffline(domain domain.Offline) (categoryObj domain.Offline, err error) {
+	newRecord := fromOfflineDomain(domain)
+	err = cr.DB.Create(&newRecord).Error
+
+	if err != nil {
+		return categoryObj, err
+	}
+
+	categoryObj = toOfflineDomain(newRecord)
+	return categoryObj, nil
+}
+
+// DeleteOffline implements domain.Repository
+func (cr classRepository) DeleteOffline(id int) (err error) {
+	var record OfflineClass
+	return cr.DB.Delete(&record, id).Error
+}
+
+// GetCaOfflineID implements domain.Repository
+func (cr classRepository) GetOfflineByID(id int) (offlineClassObj domain.Offline, err error) {
+	var newRecord OfflineClass
+	err = cr.DB.First(&newRecord, id).Error
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	return toOfflineDomain(newRecord), nil
+}
+
+// GetOffline implements domain.Repository
+func (cr classRepository) GetOffline() (offlineClassObj []domain.Offline, err error) {
+	var newRecords []OfflineClass
+
+	err = cr.DB.Find(&newRecords).Error
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	for _, value := range newRecords {
+		offlineClassObj = append(offlineClassObj, toOfflineDomain(value))
+	}
+
+	return offlineClassObj, nil
+}
+
+// UpdateOffline implements domain.Repository
+func (cr classRepository) UpdateOffline(id int, domain domain.Offline) (offlineClassObj domain.Offline, err error) {
+	var newRecord OfflineClass
+	record := fromOfflineDomain(domain)
+	err = cr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
+		"id":                id,
+		"trainer_id":        record.TrainerID,
+		"class_category_id": record.ClassCategoryID,
+		"date":              record.Date,
+		"started_at":        record.StartedAt,
+		"ended_at":          record.EndedAt,
+		"place":             record.Place,
+		"quota":             record.Quota,
+		"created_at":        record.CreatedAt,
+		"updated_at":        record.UpdatedAt,
+	}).Error
+
+	if err != nil {
+		return offlineClassObj, err
+	}
+
+	offlineClassObj = toOfflineDomain(newRecord)
+	return offlineClassObj, nil
+}
+
 // CreateOnline implements domain.Repository
 func (cr classRepository) CreateOnline(domain domain.Online) (categoryObj domain.Online, err error) {
 	newRecord := fromOnlineDomain(domain)
@@ -25,36 +98,62 @@ func (cr classRepository) CreateOnline(domain domain.Online) (categoryObj domain
 }
 
 // DeleteOnline implements domain.Repository
-func (classRepository) DeleteOnline(id int) (err error) {
-	panic("unimplemented")
+func (cr classRepository) DeleteOnline(id int) (err error) {
+	var record OnlineClass
+	return cr.DB.Delete(&record, id).Error
 }
 
 // GetCaOnlineID implements domain.Repository
-func (classRepository) GetOnlineByID(id int) (categoryObj domain.Online, err error) {
-	panic("unimplemented")
+func (cr classRepository) GetOnlineByID(id int) (onlineClassObj domain.Online, err error) {
+	var newRecord OnlineClass
+	err = cr.DB.First(&newRecord, id).Error
+
+	if err != nil {
+		return onlineClassObj, err
+	}
+
+	return toOnlineDomain(newRecord), nil
 }
 
 // GetOnline implements domain.Repository
-func (cr classRepository) GetOnline() (categoryObj []domain.Online, err error) {
+func (cr classRepository) GetOnline() (onlineClassObj []domain.Online, err error) {
 	var newRecords []OnlineClass
 
 	err = cr.DB.Find(&newRecords).Error
 
 	if err != nil {
-		return categoryObj, err
+		return onlineClassObj, err
 	}
 
 	for _, value := range newRecords {
-		categoryObj = append(categoryObj, toOnlineDomain(value))
+		onlineClassObj = append(onlineClassObj, toOnlineDomain(value))
 	}
 
-	return categoryObj, nil
-
+	return onlineClassObj, nil
 }
 
 // UpdateOnline implements domain.Repository
-func (classRepository) UpdateOnline(id int, domain domain.Online) (categoryObj domain.Online, err error) {
-	panic("unimplemented")
+func (cr classRepository) UpdateOnline(id int, domain domain.Online) (onlineClassObj domain.Online, err error) {
+	var newRecord OnlineClass
+	record := fromOnlineDomain(domain)
+	err = cr.DB.Model(&newRecord).Where("id = ?", id).Updates(map[string]interface{}{
+		"id":                id,
+		"trainer_id":        record.TrainerID,
+		"class_category_id": record.ClassCategoryID,
+		"date":              record.Date,
+		"started_at":        record.StartedAt,
+		"ended_at":          record.EndedAt,
+		"link":              record.Link,
+		"created_at":        record.CreatedAt,
+		"updated_at":        record.UpdatedAt,
+	}).Error
+
+	if err != nil {
+		return onlineClassObj, err
+	}
+
+	onlineClassObj = toOnlineDomain(newRecord)
+	return onlineClassObj, nil
 }
 
 // Delete implements domain.Repository
