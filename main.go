@@ -46,6 +46,7 @@ func main() {
 	book := book.NewBookFactory(db)
 
 	e := echo.New()
+	e.Use(middleware.CORS())
 	authMiddleware.LogMiddlewares(e)
 	cJWT := configJWT.Init()
 

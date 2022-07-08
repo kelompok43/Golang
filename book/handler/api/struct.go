@@ -19,15 +19,15 @@ type RequestOfflineClassJSON struct {
 
 func toOnlineClassDomain(req RequestOnlineClassJSON) domain.OnlineClass {
 	return domain.OnlineClass{
-		UserID:  req.UserID,
-		ClassID: req.ClassID,
+		UserID:        req.UserID,
+		OnlineClassID: req.ClassID,
 	}
 }
 
 func toOfflineClassDomain(req RequestOfflineClassJSON) domain.OfflineClass {
 	return domain.OfflineClass{
-		UserID:  req.UserID,
-		ClassID: req.ClassID,
+		UserID:         req.UserID,
+		OfflineClassID: req.ClassID,
 	}
 }
 
@@ -55,7 +55,7 @@ func fromOnlineClassDomain(domain domain.OnlineClass) ResponseOnlineClassJSON {
 	return ResponseOnlineClassJSON{
 		Id:        domain.ID,
 		UserID:    domain.UserID,
-		ClassID:   domain.ClassID,
+		ClassID:   domain.OnlineClassID,
 		CreatedAt: tmCreatedAt,
 		UpdatedAt: tmUpdatedAt,
 	}
@@ -69,7 +69,7 @@ func fromOfflineClassDomain(domain domain.OfflineClass) ResponseOfflineClassJSON
 	return ResponseOfflineClassJSON{
 		Id:        domain.ID,
 		UserID:    domain.UserID,
-		ClassID:   domain.ClassID,
+		ClassID:   domain.OfflineClassID,
 		CreatedAt: tmCreatedAt,
 		UpdatedAt: tmUpdatedAt,
 	}
