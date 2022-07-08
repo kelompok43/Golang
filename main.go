@@ -7,6 +7,7 @@ import (
 	"github.com/kelompok43/Golang/admin"
 	"github.com/kelompok43/Golang/auth"
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
+	"github.com/kelompok43/Golang/book"
 	"github.com/kelompok43/Golang/class"
 	"github.com/kelompok43/Golang/config"
 	"github.com/kelompok43/Golang/membership"
@@ -42,6 +43,7 @@ func main() {
 	membership := membership.NewMembershipFactory(db)
 	transaction := transaction.NewTransactionFactory(db, configJWT)
 	class := class.NewClassFactory(db)
+	book := book.NewBookFactory(db)
 
 	e := echo.New()
 	authMiddleware.LogMiddlewares(e)
@@ -120,6 +122,18 @@ func main() {
 	classGroup.GET("/offline/:id", class.GetOfflineByID)
 	classGroup.PUT("/offline/:id", class.UpdateOffline)
 	classGroup.DELETE("/offline/:id", class.DeleteOffline)
+
+	bookGroup := e.Group("/book")
+	bookGroup.POST("/online-class", book.AddOnlineClass)
+	bookGroup.GET("/online-class", book.GetAllOnlineClass)
+	bookGroup.GET("/online-class/:id", book.GetOnlineClassByID)
+	bookGroup.PUT("/online-class/:id", book.UpdateOnlineClass)
+	bookGroup.DELETE("/online-class/:id", book.DeleteOnlineClass)
+	bookGroup.POST("/offline-class", book.AddOfflineClass)
+	bookGroup.GET("/offline-class", book.GetAllOfflineClass)
+	bookGroup.GET("/offline-class/:id", book.GetOfflineClassByID)
+	bookGroup.PUT("/offline-class/:id", book.UpdateOfflineClass)
+	bookGroup.DELETE("/offline-class/:id", book.DeleteOfflineClass)
 
 	e.Start(":9700")
 }

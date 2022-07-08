@@ -5,6 +5,7 @@ import (
 	"os"
 
 	repoAdmin "github.com/kelompok43/Golang/admin/repository/mysql"
+	repoBook "github.com/kelompok43/Golang/book/repository/mysql"
 	repoClass "github.com/kelompok43/Golang/class/repository/mysql"
 	repoMembership "github.com/kelompok43/Golang/membership/repository/mysql"
 	repoPM "github.com/kelompok43/Golang/payment_method/repository/mysql"
@@ -64,5 +65,7 @@ func DBMigrate(DB *gorm.DB) {
 		&repoClass.ClassCategory{},
 		&repoClass.OnlineClass{},
 		&repoClass.OfflineClass{},
+		&repoBook.BookOnlineClass{},
+		&repoBook.BookOfflineClass{},
 	)
 }

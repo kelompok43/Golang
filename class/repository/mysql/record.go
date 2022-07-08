@@ -31,6 +31,7 @@ type OnlineClass struct {
 }
 
 type OfflineClass struct {
+	gorm.Model
 	ID              int
 	ClassCategoryID int
 	TrainerID       int
