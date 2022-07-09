@@ -1,11 +1,14 @@
 package service
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
 
 	authMiddleware "github.com/kelompok43/Golang/auth/middlewares"
+	storageHelper "github.com/kelompok43/Golang/helpers/azure"
 	encryptHelper "github.com/kelompok43/Golang/helpers/encrypt"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
 	membershipDomain "github.com/kelompok43/Golang/membership/domain"
@@ -16,6 +19,43 @@ type userService struct {
 	repository        domain.Repository
 	jwtAuth           authMiddleware.ConfigJWT
 	membershipService membershipDomain.Service
+}
+
+// UpdateDetail implements domain.Service
+func (us userService) UpdateDetail(domain domain.User) (userObj domain.User, err error) {
+	user, err := us.GetByID(domain.ID)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	domain.CreatedAt = timeHelper.Timestamp()
+	domain.UpdatedAt = timeHelper.Timestamp()
+
+	if domain.Picture != nil {
+		buf := bytes.NewBuffer(nil)
+
+		if _, err := io.Copy(buf, domain.Picture); err != nil {
+			return userObj, err
+		}
+
+		data := buf.Bytes()
+		user.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
+	}
+
+	userObj, err = us.repository.Update(user)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	userObj, err = us.GetByID(userObj.ID)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	return userObj, nil
 }
 
 // UpdateStatus implements domain.Service
@@ -89,9 +129,32 @@ func (us userService) GetByEmail(email string) (userObj domain.User, err error) 
 
 // InsertDetailData implements domain.Service
 func (us userService) InsertDetailData(domain domain.User) (userObj domain.User, err error) {
+	user, err := us.GetByID(domain.ID)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	buf := bytes.NewBuffer(nil)
+
+	if _, err := io.Copy(buf, domain.Picture); err != nil {
+		return userObj, err
+	}
+
+	data := buf.Bytes()
+	domain.Status = user.Status
+	domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
+	fmt.Println(domain.PictureLink)
 	domain.CreatedAt = timeHelper.Timestamp()
 	domain.UpdatedAt = timeHelper.Timestamp()
+
 	userObj, err = us.repository.AddDetail(domain)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	_, err = us.repository.Update(domain)
 
 	if err != nil {
 		return userObj, err
@@ -119,7 +182,8 @@ func (us userService) GetByID(id int) (userObj domain.User, err error) {
 	userObj.DOB = detail.DOB
 	userObj.Phone = detail.Phone
 	userObj.Address = detail.Address
-	userObj.Gender = detail.Gender
+	// userObj.Gender = detail.Gender
+	userObj.PictureLink = detail.PictureLink
 	return userObj, nil
 }
 

@@ -127,6 +127,15 @@ func (uh UserHandler) GetByID(ctx echo.Context) error {
 func (uh UserHandler) AddDetail(ctx echo.Context) error {
 	var req RequestDetailJSON
 	ctx.Bind(&req)
+	err := uh.validation.Struct(req)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
 	id, err := strconv.Atoi(ctx.Param("id"))
 
 	if err != nil {
@@ -136,8 +145,47 @@ func (uh UserHandler) AddDetail(ctx echo.Context) error {
 		})
 	}
 
+	picture, _ := ctx.FormFile("picture")
+	src, _ := picture.Open()
+	defer src.Close()
+	req.Picture = src
 	req.UserID = id
 	userRes, err := uh.service.InsertDetailData(detailToDomain(req))
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	userObj := fromDomain(userRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    userObj,
+	})
+}
+
+func (uh UserHandler) Update(ctx echo.Context) error {
+	var req RequestDetailJSON
+	ctx.Bind(&req)
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	picture, _ := ctx.FormFile("picture")
+	src, _ := picture.Open()
+	defer src.Close()
+	req.Picture = src
+	req.UserID = id
+	userRes, err := uh.service.UpdateDetail(detailToDomain(req))
 
 	if err != nil {
 		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
