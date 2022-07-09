@@ -11,6 +11,7 @@ import (
 	"github.com/kelompok43/Golang/class"
 	"github.com/kelompok43/Golang/config"
 	"github.com/kelompok43/Golang/membership"
+	"github.com/kelompok43/Golang/news"
 	"github.com/kelompok43/Golang/payment_method"
 	"github.com/kelompok43/Golang/trainer"
 	"github.com/kelompok43/Golang/transaction"
@@ -44,6 +45,7 @@ func main() {
 	transaction := transaction.NewTransactionFactory(db, configJWT)
 	class := class.NewClassFactory(db)
 	book := book.NewBookFactory(db)
+	news := news.NewNewsFactory(db)
 
 	e := echo.New()
 	e.Use(middleware.CORS())
@@ -135,6 +137,18 @@ func main() {
 	bookGroup.GET("/offline-class/:id", book.GetOfflineClassByID)
 	bookGroup.PUT("/offline-class/:id", book.UpdateOfflineClass)
 	bookGroup.DELETE("/offline-class/:id", book.DeleteOfflineClass)
+
+	newsGroup := e.Group("/news")
+	newsGroup.POST("/category", news.AddCategory)
+	newsGroup.GET("/category", news.GetAllCategory)
+	newsGroup.GET("/category/:id", news.GetCategoryByID)
+	newsGroup.PUT("/category/:id", news.UpdateCategory)
+	newsGroup.DELETE("/category/:id", news.DeleteCategory)
+	newsGroup.POST("", news.AddData)
+	newsGroup.GET("", news.GetAllData)
+	newsGroup.GET("/:id", news.GetByID)
+	newsGroup.PUT("/:id", news.UpdateData)
+	newsGroup.DELETE("/:id", news.DeleteData)
 
 	e.Start(":9700")
 }
