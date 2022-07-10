@@ -29,6 +29,7 @@ func (us userService) UpdateDetail(domain domain.User) (userObj domain.User, err
 		return userObj, err
 	}
 
+	domain.Status = user.Status
 	domain.CreatedAt = timeHelper.Timestamp()
 	domain.UpdatedAt = timeHelper.Timestamp()
 
@@ -40,10 +41,10 @@ func (us userService) UpdateDetail(domain domain.User) (userObj domain.User, err
 		}
 
 		data := buf.Bytes()
-		user.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
+		domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
 	}
 
-	userObj, err = us.repository.Update(user)
+	userObj, err = us.repository.Update(domain)
 
 	if err != nil {
 		return userObj, err

@@ -60,7 +60,7 @@ func main() {
 	userGroup.GET("/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
 	// userGroup.GET("/profile/:id", user.GetByID, middleware.JWTWithConfig(cJWT))
 	userGroup.POST("/detail/:id", user.AddDetail, middleware.JWTWithConfig(cJWT))
-	userGroup.PUT("/detail/:id", user.Update, middleware.JWTWithConfig(cJWT))
+	userGroup.PATCH("/detail/:id", user.Update, middleware.JWTWithConfig(cJWT))
 	userGroup.GET("/:id/transaction", transaction.GetUserTrx)
 	userGroup.GET("/:id/transaction/:trx_id", transaction.GetUserTrxByID)
 	userGroup.GET("/get-email", user.GetByEmail)
