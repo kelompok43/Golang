@@ -8,6 +8,7 @@ import (
 	repoBook "github.com/kelompok43/Golang/book/repository/mysql"
 	repoClass "github.com/kelompok43/Golang/class/repository/mysql"
 	repoMembership "github.com/kelompok43/Golang/membership/repository/mysql"
+	repoNews "github.com/kelompok43/Golang/news/repository/mysql"
 	repoPM "github.com/kelompok43/Golang/payment_method/repository/mysql"
 	repoTrainer "github.com/kelompok43/Golang/trainer/repository/mysql"
 	repoTransaction "github.com/kelompok43/Golang/transaction/repository/mysql"
@@ -67,5 +68,7 @@ func DBMigrate(DB *gorm.DB) {
 		&repoClass.OfflineClass{},
 		&repoBook.BookOnlineClass{},
 		&repoBook.BookOfflineClass{},
+		&repoNews.NewsCategory{},
+		&repoNews.News{},
 	)
 }
