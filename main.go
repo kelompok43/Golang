@@ -45,7 +45,7 @@ func main() {
 	transaction := transaction.NewTransactionFactory(db, configJWT)
 	class := class.NewClassFactory(db)
 	book := book.NewBookFactory(db)
-	news := news.NewNewsFactory(db)
+	news := news.NewNewsFactory(db, configJWT)
 
 	e := echo.New()
 	e.Use(middleware.CORS())

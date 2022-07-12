@@ -2,15 +2,20 @@ package service
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 
 	storageHelper "github.com/kelompok43/Golang/helpers/azure"
 	timeHelper "github.com/kelompok43/Golang/helpers/time"
+	hourmailerDomain "github.com/kelompok43/Golang/hourmailer/domain"
 	"github.com/kelompok43/Golang/news/domain"
+	userDomain "github.com/kelompok43/Golang/user/domain"
 )
 
 type newsService struct {
-	repository domain.Repository
+	repository     domain.Repository
+	hourmailerRepo hourmailerDomain.Repository
+	userService    userDomain.Service
 }
 
 // DeleteCategory implements domain.Service
@@ -137,6 +142,26 @@ func (ns newsService) InsertData(domain domain.News) (newsObj domain.News, err e
 		return newsObj, err
 	}
 
+	user, err := ns.userService.GetAllData()
+
+	fmt.Println("user = ", user)
+
+	if err != nil {
+		return newsObj, err
+	}
+
+	userEmail := ""
+
+	for _, value := range user {
+		userEmail = value.Email
+		fmt.Println("useremail = ", userEmail)
+		_, err := ns.hourmailerRepo.SendEmail(userEmail, domain.Title, domain.Description, domain.PictureLink)
+
+		if err != nil {
+			return newsObj, err
+		}
+	}
+
 	return newsObj, nil
 }
 
@@ -151,8 +176,10 @@ func (ns newsService) GetAllData() (newsObj []domain.News, err error) {
 	return newsObj, nil
 }
 
-func NewNewsService(repo domain.Repository) domain.Service {
+func NewNewsService(repo domain.Repository, hourmailerRepo hourmailerDomain.Repository, userService userDomain.Service) domain.Service {
 	return newsService{
-		repository: repo,
+		repository:     repo,
+		hourmailerRepo: hourmailerRepo,
+		userService:    userService,
 	}
 }
