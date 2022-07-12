@@ -182,7 +182,6 @@ func (ur userRepository) GetByEmail(email string) (userObj domain.User, err erro
 		DOB:       userDetail.DOB,
 		Phone:     userDetail.Phone,
 		Address:   userDetail.Address,
-		Gender:    userDetail.Gender,
 		CreatedAt: newRecord.CreatedAt,
 		UpdatedAt: newRecord.UpdatedAt,
 	}
