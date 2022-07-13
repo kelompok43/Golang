@@ -168,11 +168,7 @@ func (ur userRepository) GetByEmail(email string) (userObj domain.User, err erro
 		return userObj, err
 	}
 
-	userDetail, err := ur.GetDetail(newRecord.ID)
-
-	if err != nil {
-		return userObj, err
-	}
+	userDetail, _ := ur.GetDetail(newRecord.ID)
 
 	user := joinResult{
 		ID:        newRecord.ID,

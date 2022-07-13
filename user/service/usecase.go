@@ -30,6 +30,7 @@ func (us userService) UpdateDetail(domain domain.User) (userObj domain.User, err
 	}
 
 	domain.Status = user.Status
+	domain.Password = user.Password
 	domain.CreatedAt = timeHelper.Timestamp()
 	domain.UpdatedAt = timeHelper.Timestamp()
 
@@ -144,6 +145,7 @@ func (us userService) InsertDetailData(domain domain.User) (userObj domain.User,
 
 	data := buf.Bytes()
 	domain.Status = user.Status
+	domain.Password = user.Password
 	domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
 	fmt.Println(domain.PictureLink)
 	domain.CreatedAt = timeHelper.Timestamp()
