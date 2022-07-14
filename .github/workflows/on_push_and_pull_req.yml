@@ -1,0 +1,38 @@
+name: "on_push_and_pull_request"
+
+on:
+  pull_request:
+    branches:
+      - "development"
+  push:
+    branches:
+      - "development"
+
+jobs:
+  testing:
+    name: testing-api
+    runs-on: ubuntu-latest
+    container: golang:1.18
+    services:
+      mysql:
+        image: mariadb:10.1
+        env:
+          MYSQL_ROOT_PASSWORD: tes
+          MYSQL_DATABASE: gmsdb
+        ports:
+          - 3306:3306
+    strategy:
+      matrix:
+        go: ["1.18"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: running test
+        env:
+          DBNAME: gmsdb
+          DBHOST: mysql
+          DBPORT: 3306
+          DBUSER: root
+          DBPASS: tes
+        run: |
+          go mod tidy
+          go test ./...

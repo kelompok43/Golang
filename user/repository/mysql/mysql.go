@@ -11,6 +11,26 @@ type userRepository struct {
 	DB *gorm.DB
 }
 
+// UpdateDetail implements domain.Repository
+func (ur userRepository) UpdateDetail(domain domain.User) (userObj domain.User, err error) {
+	newRecord := fromDomainToUserDetail(domain)
+	err = ur.DB.Create(&newRecord).Error
+
+	if err != nil {
+		return userObj, err
+	}
+
+	user := joinResult{
+		ID:          domain.ID,
+		DOB:         domain.DOB,
+		Phone:       domain.Phone,
+		Address:     domain.Address,
+		PictureLink: domain.PictureLink,
+	}
+
+	return toDomain(user), nil
+}
+
 // Update implements domain.Repository
 func (ur userRepository) Update(domain domain.User) (userObj domain.User, err error) {
 	var newRecord User
@@ -20,6 +40,7 @@ func (ur userRepository) Update(domain domain.User) (userObj domain.User, err er
 		"id":         rec.ID,
 		"name":       rec.Name,
 		"email":      rec.Email,
+		"status":     rec.Status,
 		"password":   rec.Password,
 		"updated_at": domain.UpdatedAt,
 	}).Error
@@ -30,8 +51,12 @@ func (ur userRepository) Update(domain domain.User) (userObj domain.User, err er
 
 	detailRec := fromDomainToUserDetail(domain)
 	err = ur.DB.Model(&newDetailRecord).Where("user_id = ?", domain.ID).Updates(map[string]interface{}{
-		"user_id":    detailRec.UserID,
-		"updated_at": domain.UpdatedAt,
+		"user_id":      detailRec.UserID,
+		"dob":          detailRec.DOB,
+		"phone":        detailRec.Phone,
+		"address":      detailRec.Address,
+		"picture_link": detailRec.PictureLink,
+		"updated_at":   domain.UpdatedAt,
 	}).Error
 
 	if err != nil {
@@ -39,17 +64,18 @@ func (ur userRepository) Update(domain domain.User) (userObj domain.User, err er
 	}
 
 	user := joinResult{
-		ID:        rec.ID,
-		Name:      rec.Name,
-		DOB:       detailRec.DOB,
-		Email:     rec.Email,
-		Password:  rec.Password,
-		Phone:     detailRec.Phone,
-		Address:   detailRec.Address,
-		Gender:    detailRec.Gender,
-		Status:    rec.Status,
-		CreatedAt: rec.CreatedAt,
-		UpdatedAt: rec.UpdatedAt,
+		ID:       rec.ID,
+		Name:     rec.Name,
+		DOB:      detailRec.DOB,
+		Email:    rec.Email,
+		Password: rec.Password,
+		Phone:    detailRec.Phone,
+		Address:  detailRec.Address,
+		// Gender:    detailRec.Gender,
+		PictureLink: detailRec.PictureLink,
+		Status:      rec.Status,
+		CreatedAt:   rec.CreatedAt,
+		UpdatedAt:   rec.UpdatedAt,
 	}
 
 	return toDomain(user), nil
@@ -65,11 +91,11 @@ func (ur userRepository) GetDetail(id int) (userObj domain.User, err error) {
 	}
 
 	user := joinResult{
-		ID:      record.UserID,
-		DOB:     record.DOB,
-		Phone:   record.Phone,
-		Address: record.Address,
-		Gender:  record.Gender,
+		ID:          record.UserID,
+		DOB:         record.DOB,
+		Phone:       record.Phone,
+		Address:     record.Address,
+		PictureLink: record.PictureLink,
 	}
 
 	return toDomain(user), nil
@@ -85,11 +111,11 @@ func (ur userRepository) AddDetail(domain domain.User) (userObj domain.User, err
 	}
 
 	user := joinResult{
-		ID:      domain.ID,
-		DOB:     domain.DOB,
-		Phone:   domain.Phone,
-		Address: domain.Address,
-		Gender:  domain.Gender,
+		ID:          domain.ID,
+		DOB:         domain.DOB,
+		Phone:       domain.Phone,
+		Address:     domain.Address,
+		PictureLink: domain.PictureLink,
 	}
 
 	return toDomain(user), nil
@@ -142,10 +168,18 @@ func (ur userRepository) GetByEmail(email string) (userObj domain.User, err erro
 		return userObj, err
 	}
 
+	userDetail, _ := ur.GetDetail(newRecord.ID)
+
 	user := joinResult{
-		ID:       newRecord.ID,
-		Email:    newRecord.Email,
-		Password: newRecord.Password,
+		ID:        newRecord.ID,
+		Email:     newRecord.Email,
+		Password:  newRecord.Password,
+		Status:    newRecord.Status,
+		DOB:       userDetail.DOB,
+		Phone:     userDetail.Phone,
+		Address:   userDetail.Address,
+		CreatedAt: newRecord.CreatedAt,
+		UpdatedAt: newRecord.UpdatedAt,
 	}
 	return toDomain(user), nil
 }
