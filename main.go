@@ -75,6 +75,8 @@ func main() {
 	adminGroup := e.Group("/admin")
 	adminGroup.GET("", admin.GetAllData, middleware.JWTWithConfig(cJWT))
 	adminGroup.GET("/:id", admin.GetByID, middleware.JWTWithConfig(cJWT))
+	adminGroup.PUT("/:id", admin.UpdateData, middleware.JWTWithConfig(cJWT))
+	adminGroup.DELETE("/:id", admin.DeleteData, middleware.JWTWithConfig(cJWT))
 	adminGroup.GET("/get-email", admin.GetByEmail)
 	adminGroup.PUT("/change-password/:id", admin.ChangePassword)
 	adminGroup.POST("/login", admin.Login)
