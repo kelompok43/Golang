@@ -172,6 +172,53 @@ func (ah AdminHandler) ChangePassword(ctx echo.Context) error {
 	})
 }
 
+func (ah AdminHandler) UpdateData(ctx echo.Context) error {
+	var req RequestJSON
+	ctx.Bind(&req)
+
+	id, err := strconv.Atoi(ctx.Param("id"))
+
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusBadRequest,
+		})
+	}
+
+	userRes, err := ah.service.UpdateData(id, toDomain(req))
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	userObj := fromDomain(userRes)
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": http.StatusOK,
+		"data":    userObj,
+	})
+}
+
+func (ah AdminHandler) DeleteData(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	err := ah.service.DeleteData(id)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": 200,
+	})
+}
+
 func (ah AdminHandler) AdminRole(id int) (role string, err error) {
 	adminObj, err := ah.service.GetByID(id)
 

@@ -7,6 +7,8 @@ type Service interface {
 	GetByID(id int) (adminObj Admin, err error)
 	GetByEmail(email string) (adminObj Admin, err error)
 	ChangePassword(id int, domain Admin) (adminObj Admin, err error)
+	UpdateData(id int, domain Admin) (adminObj Admin, err error)
+	DeleteData(id int) (err error)
 }
 
 type Repository interface {
@@ -15,4 +17,5 @@ type Repository interface {
 	Get() (adminObj []Admin, err error)
 	GetByID(id int) (domain Admin, err error)
 	GetByEmail(email string) (adminObj Admin, err error)
+	Delete(id int) (err error)
 }

@@ -14,11 +14,56 @@ type adminService struct {
 	jwtAuth    authMiddleware.ConfigJWT
 }
 
+// DeleteData implements domain.Service
+func (as adminService) DeleteData(id int) (err error) {
+	errResp := as.repository.Delete(id)
+
+	if errResp != nil {
+		return errResp
+	}
+
+	return nil
+}
+
+// UpdateData implements domain.Service
+func (as adminService) UpdateData(id int, domain domain.Admin) (adminObj domain.Admin, err error) {
+	admin, err := as.GetByID(id)
+
+	if err != nil {
+		return adminObj, err
+	}
+
+	domain.ID = admin.ID
+	// domain.Password = admin.Password
+	domain.CreatedAt = admin.CreatedAt
+	domain.UpdatedAt = timeHelper.Timestamp()
+
+	adminObj, err = as.repository.Update(domain)
+
+	if err != nil {
+		return adminObj, err
+	}
+
+	return adminObj, nil
+}
+
 // ChangePassword implements domain.Service
 func (as adminService) ChangePassword(id int, domain domain.Admin) (adminObj domain.Admin, err error) {
-	domain.ID = id
-	domain.UpdatedAt = timeHelper.Timestamp()
-	adminObj, err = as.repository.Update(domain)
+	admin, err := as.repository.GetByID(id)
+
+	if err != nil {
+		return adminObj, err
+	}
+
+	admin.ID = id
+	admin.Password, err = encryptHelper.Hash(domain.Password)
+
+	if err != nil {
+		return adminObj, err
+	}
+
+	admin.UpdatedAt = timeHelper.Timestamp()
+	adminObj, err = as.repository.Update(admin)
 
 	if err != nil {
 		return adminObj, err

@@ -11,13 +11,23 @@ type adminRepository struct {
 	DB *gorm.DB
 }
 
+// Delete implements domain.Repository
+func (ar adminRepository) Delete(id int) (err error) {
+	var record Admin
+	return ar.DB.Delete(&record, id).Error
+}
+
 // Update implements domain.Repository
-func (ur adminRepository) Update(domain domain.Admin) (adminObj domain.Admin, err error) {
+func (ar adminRepository) Update(domain domain.Admin) (adminObj domain.Admin, err error) {
 	var newRecord Admin
 	rec := fromDomain(domain)
-	err = ur.DB.Model(&newRecord).Where("id = ?", domain.ID).Updates(map[string]interface{}{
+	err = ar.DB.Model(&newRecord).Where("id = ?", domain.ID).Updates(map[string]interface{}{
 		"id":         rec.ID,
 		"name":       rec.Name,
+		"dob":        rec.DOB,
+		"gender":     rec.Gender,
+		"address":    rec.Address,
+		"role":       rec.Role,
 		"email":      rec.Email,
 		"password":   rec.Password,
 		"updated_at": domain.UpdatedAt,
@@ -31,9 +41,9 @@ func (ur adminRepository) Update(domain domain.Admin) (adminObj domain.Admin, er
 }
 
 // GetByID implements domain.Repository
-func (ur adminRepository) GetByID(id int) (domain domain.Admin, err error) {
+func (ar adminRepository) GetByID(id int) (domain domain.Admin, err error) {
 	var newRecord Admin
-	err = ur.DB.First(&newRecord, id).Error
+	err = ar.DB.First(&newRecord, id).Error
 
 	if err != nil {
 		return domain, err
@@ -43,10 +53,10 @@ func (ur adminRepository) GetByID(id int) (domain domain.Admin, err error) {
 }
 
 // Get implements domain.Repository
-func (ur adminRepository) Get() (adminObj []domain.Admin, err error) {
+func (ar adminRepository) Get() (adminObj []domain.Admin, err error) {
 	var newRecords []Admin
 
-	err = ur.DB.Find(&newRecords).Error
+	err = ar.DB.Find(&newRecords).Error
 
 	if err != nil {
 		return adminObj, err
@@ -60,9 +70,9 @@ func (ur adminRepository) Get() (adminObj []domain.Admin, err error) {
 }
 
 // GetByEmail implements domain.Repository
-func (ur adminRepository) GetByEmail(email string) (adminObj domain.Admin, err error) {
+func (ar adminRepository) GetByEmail(email string) (adminObj domain.Admin, err error) {
 	var newRecord Admin
-	err = ur.DB.Where("email = ?", email).First(&newRecord).Error
+	err = ar.DB.Where("email = ?", email).First(&newRecord).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return adminObj, err
@@ -72,10 +82,10 @@ func (ur adminRepository) GetByEmail(email string) (adminObj domain.Admin, err e
 }
 
 // Create implements domain.Repository
-func (ur adminRepository) Create(domain domain.Admin) (adminObj domain.Admin, err error) {
+func (ar adminRepository) Create(domain domain.Admin) (adminObj domain.Admin, err error) {
 	// var recordDetail AdminDetail
 	newRecord := fromDomain(domain)
-	err = ur.DB.Create(&newRecord).Error
+	err = ar.DB.Create(&newRecord).Error
 
 	if err != nil {
 		return adminObj, err
