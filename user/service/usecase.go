@@ -43,6 +43,8 @@ func (us userService) UpdateDetail(domain domain.User) (userObj domain.User, err
 
 		data := buf.Bytes()
 		domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
+	} else {
+		domain.PictureLink = user.PictureLink
 	}
 
 	userObj, err = us.repository.Update(domain)

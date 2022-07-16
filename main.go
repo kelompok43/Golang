@@ -86,7 +86,7 @@ func main() {
 	trainerGroup.POST("", trainer.AddData)
 	trainerGroup.GET("", trainer.GetAllData)
 	trainerGroup.GET("/:id", trainer.GetByID)
-	trainerGroup.PUT("/:id", trainer.UpdateData)
+	trainerGroup.PATCH("/:id", trainer.UpdateData)
 	trainerGroup.DELETE("/:id", trainer.DeleteData)
 
 	paymentGroup := e.Group("/payment", middleware.JWTWithConfig(cJWT))

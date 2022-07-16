@@ -104,7 +104,19 @@ func (ns newsService) UpdateData(id int, domain domain.News) (newsObj domain.New
 
 	domain.CreatedAt = news.CreatedAt
 	domain.UpdatedAt = timeHelper.Timestamp()
-	domain.PictureLink = news.PictureLink
+	if domain.Picture != nil {
+		buf := bytes.NewBuffer(nil)
+
+		if _, err := io.Copy(buf, domain.Picture); err != nil {
+			return newsObj, err
+		}
+
+		data := buf.Bytes()
+		domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
+	} else {
+		domain.PictureLink = news.PictureLink
+	}
+
 	newsObj, err = ns.repository.Update(id, domain)
 
 	if err != nil {
