@@ -43,7 +43,20 @@ func (ts trainerService) UpdateData(id int, domain domain.Trainer) (trainerObj d
 
 	domain.CreatedAt = trainer.CreatedAt
 	domain.UpdatedAt = timeHelper.Timestamp()
-	domain.PictureLink = trainer.PictureLink
+
+	if domain.Picture != nil {
+		buf := bytes.NewBuffer(nil)
+
+		if _, err := io.Copy(buf, domain.Picture); err != nil {
+			return trainerObj, err
+		}
+
+		data := buf.Bytes()
+		domain.PictureLink, _ = storageHelper.UploadBytesToBlob(data)
+	} else {
+		domain.PictureLink = trainer.PictureLink
+	}
+
 	trainerObj, err = ts.repository.Update(id, domain)
 
 	if err != nil {
