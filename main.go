@@ -150,7 +150,7 @@ func main() {
 	newsGroup.POST("", news.AddData)
 	newsGroup.GET("", news.GetAllData)
 	newsGroup.GET("/:id", news.GetByID)
-	newsGroup.PUT("/:id", news.UpdateData)
+	newsGroup.PATCH("/:id", news.UpdateData)
 	newsGroup.DELETE("/:id", news.DeleteData)
 
 	e.Start(":9700")
