@@ -1,60 +1,46 @@
 version: "3.9"
 
 services:
-  mysql:
-    image: mysql
-    volumes:
-      - db_data:/var/lib/mysql
-    # be sure to run `docker volume rm dev_dev_conf` when changing envs
-    environment:
-      - MYSQL_DATABASE='gmsdb'
-      - MYSQL_ROOT_PASSWORD=mysecretpw
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=mysecretpw
-
-    #expose:
-    #  - "3300"
-    ports:
-      - "3300:3306"
-    healthcheck:
-      test: "/usr/bin/mysql --user=root --password=mysecretpw --execute \"SHOW DATABASES;\""
-      # test: ["CMD", 'mysqladmin', 'ping', '-h', 'localhost', '-u', 'root', '-pmysecretpw' ]
-      interval: 30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
-    networks:
-      - gmsnet
-    # restart: on-failure:10
   gmsapi:
     build: .
-    image: gmscr.azurecr.io/gmsapi:v1
+    image: jiran03/gymmembership:v1
     container_name: gms-1.0.0
-    cap_add:
-      - SYS_NICE
-    depends_on:
-      # - mysql
-      mysql:
-        condition: service_healthy
-    # links:
-    #   - mysql
     ports:
-      - "80:9700"
+      - 9600:9700
+    depends_on:
+      db:
+        condition: service_started
     environment:
       DB_NAME: gmsdb
-      DB_HOST: host.docker.internal
-      DB_USER: root
+      DB_HOST: db
+      DB_USER: pg
       DB_PASS: mysecretpw
-      DB_PORT: 3300
+      DB_PORT: 5432
     #env_file:
     #  - ./config.env
     networks:
       - gmsnet
-    restart: on-failure:10
+    restart: always
+
+  db:
+    container_name: gmsdb
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=mysecretpw
+      - POSTGRES_DB=gmsdb
+    ports:
+      - 5432:5432
+    networks:
+      - gmsnet
+    restart: always
 
 volumes:
   db_data:
 
 networks:
   gmsnet:
+    driver: bridge
     name: gmsnet
