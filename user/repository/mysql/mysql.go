@@ -134,6 +134,7 @@ func (ur userRepository) GetByID(id int) (domain domain.User, err error) {
 		ID:        newRecord.ID,
 		Name:      newRecord.Name,
 		Email:     newRecord.Email,
+		Password:  newRecord.Password,
 		Status:    newRecord.Status,
 		CreatedAt: newRecord.CreatedAt,
 		UpdatedAt: newRecord.UpdatedAt,
