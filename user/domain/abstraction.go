@@ -10,6 +10,7 @@ type Service interface {
 	ChangePassword(id int, domain User) (userObj User, err error)
 	UpdateStatus(id int) (userObj User, err error)
 	UpdateDetail(domain User) (userObj User, err error)
+	DeleteData(id int) (err error)
 }
 
 type Repository interface {
@@ -21,4 +22,5 @@ type Repository interface {
 	GetByID(id int) (domain User, err error)
 	GetByEmail(email string) (userObj User, err error)
 	GetDetail(id int) (userObj User, err error)
+	Delete(id int) (err error)
 }

@@ -287,6 +287,23 @@ func (uh UserHandler) UpdateStatus(ctx echo.Context) error {
 	})
 }
 
+func (uh UserHandler) DeleteData(ctx echo.Context) error {
+	id, _ := strconv.Atoi(ctx.Param("id"))
+	err := uh.service.DeleteData(id)
+
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"message": err.Error(),
+			"rescode": http.StatusInternalServerError,
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, map[string]interface{}{
+		"message": "success",
+		"rescode": 200,
+	})
+}
+
 func (uh UserHandler) UserStatus(id int) (status string, err error) {
 	userObj, err := uh.service.GetByID(id)
 
