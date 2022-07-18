@@ -208,6 +208,26 @@ func (ur userRepository) Create(domain domain.User) (userObj domain.User, err er
 	return userObj, nil
 }
 
+// Delete implements domain.Repository
+func (ur userRepository) Delete(id int) (err error) {
+	var record User
+	var detailRecord UserDetail
+
+	err = ur.DB.Delete(&record, id).Error
+
+	if err != nil {
+		return err
+	}
+
+	err = ur.DB.Delete(&detailRecord).Where("user_id = ?", id).Error
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewUserRepository(db *gorm.DB) domain.Repository {
 	return userRepository{
 		DB: db,

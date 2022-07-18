@@ -101,15 +101,31 @@ func (us userService) ChangePassword(id int, domain domain.User) (userObj domain
 		return userObj, err
 	}
 
-	user.ID = id
-	user.Password, err = encryptHelper.Hash(domain.Password)
+	userDetail, err := us.repository.GetDetail(id)
 
 	if err != nil {
 		return userObj, err
 	}
 
-	user.UpdatedAt = timeHelper.Timestamp()
-	userObj, err = us.repository.Update(user)
+	domain.ID = id
+	domain.PictureLink = userDetail.PictureLink
+	domain.Name = user.Name
+	domain.DOB = userDetail.DOB
+	domain.Email = user.Email
+	domain.Password, err = encryptHelper.Hash(domain.Password)
+	domain.Phone = userDetail.Phone
+	domain.Address = userDetail.Address
+	domain.Status = user.Status
+	domain.CreatedAt = user.CreatedAt
+
+	fmt.Println("domain = ", domain)
+
+	if err != nil {
+		return userObj, err
+	}
+
+	domain.UpdatedAt = timeHelper.Timestamp()
+	userObj, err = us.repository.Update(domain)
 
 	if err != nil {
 		return userObj, err
@@ -252,6 +268,17 @@ func (us userService) GetAllData() (userObj []domain.User, err error) {
 	}
 
 	return userObj, nil
+}
+
+// DeleteData implements domain.Service
+func (us userService) DeleteData(id int) (err error) {
+	errResp := us.repository.Delete(id)
+
+	if errResp != nil {
+		return errResp
+	}
+
+	return nil
 }
 
 func NewUserService(repo domain.Repository, jwtAuth authMiddleware.ConfigJWT, ms membershipDomain.Service) domain.Service {
