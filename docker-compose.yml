@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  gmsapi:
+    build: .
+    image: jiran03/gymmembership:v1
+    container_name: gms-1.0.0
+    ports:
+      - 9600:9700
+    depends_on:
+      db:
+        condition: service_started
+    environment:
+      DB_NAME: gmsdb
+      DB_HOST: db
+      DB_USER: pg
+      DB_PASS: mysecretpw
+      DB_PORT: 5432
+    #env_file:
+    #  - ./config.env
+    networks:
+      - gmsnet
+    restart: always
+
+  db:
+    container_name: gmsdb
+    image: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=pg
+      - POSTGRES_PASSWORD=mysecretpw
+      - POSTGRES_DB=gmsdb
+    ports:
+      - 5432:5432
+    networks:
+      - gmsnet
+    restart: always
+
+volumes:
+  db_data:
+
+networks:
+  gmsnet:
+    driver: bridge
+    name: gmsnet

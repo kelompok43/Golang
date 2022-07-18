@@ -13,7 +13,7 @@ import (
 	repoTrainer "github.com/kelompok43/Golang/trainer/repository/mysql"
 	repoTransaction "github.com/kelompok43/Golang/transaction/repository/mysql"
 	repoUser "github.com/kelompok43/Golang/user/repository/mysql"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -37,18 +37,36 @@ func Init() {
 	}
 }
 
+// func DBInit() (DB *gorm.DB) {
+// 	DB, _ = gorm.Open(
+// 		mysql.Open(
+// 			fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+// 				Conf.DBUSER,
+// 				Conf.DBPASS,
+// 				Conf.DBHOST,
+// 				Conf.DBPORT,
+// 				Conf.DBNAME,
+// 			),
+// 		),
+// 	)
+// 	return
+// }
+
 func DBInit() (DB *gorm.DB) {
-	DB, _ = gorm.Open(
-		mysql.Open(
-			fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-				Conf.DBUSER,
-				Conf.DBPASS,
-				Conf.DBHOST,
-				Conf.DBPORT,
-				Conf.DBNAME,
-			),
+	dbURL := fmt.Sprintf(
+		fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
+			Conf.DBHOST,
+			Conf.DBUSER,
+			Conf.DBPASS,
+			Conf.DBNAME,
+			Conf.DBPORT,
 		),
 	)
+
+	DB, _ = gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dbURL, // data source name, refer https://github.com/jackc/pgx
+		PreferSimpleProtocol: true,  // disables implicit prepared statement usage. By default pgx automatically uses the extended protocol
+	}), &gorm.Config{})
 	return
 }
 
