@@ -148,7 +148,7 @@ func (as adminService) InsertData(domain domain.Admin) (adminObj domain.Admin, e
 
 // GetAllData implements domain.Service
 func (as adminService) GetAllData() (adminObj []domain.Admin, err error) {
-	adminObj, _ = as.repository.Get()
+	adminObj, err = as.repository.Get()
 
 	if err != nil {
 		return adminObj, err

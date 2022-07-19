@@ -13,6 +13,7 @@ import (
 	repoTrainer "github.com/kelompok43/Golang/trainer/repository/mysql"
 	repoTransaction "github.com/kelompok43/Golang/transaction/repository/mysql"
 	repoUser "github.com/kelompok43/Golang/user/repository/mysql"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -37,22 +38,25 @@ func Init() {
 	}
 }
 
-// func DBInit() (DB *gorm.DB) {
-// 	DB, _ = gorm.Open(
-// 		mysql.Open(
-// 			fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
-// 				Conf.DBUSER,
-// 				Conf.DBPASS,
-// 				Conf.DBHOST,
-// 				Conf.DBPORT,
-// 				Conf.DBNAME,
-// 			),
-// 		),
-// 	)
-// 	return
-// }
-
 func DBInit() (DB *gorm.DB) {
+
+	//mysql
+	if os.Getenv("DB") == "mysql" {
+		DB, _ = gorm.Open(
+			mysql.Open(
+				fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
+					Conf.DBUSER,
+					Conf.DBPASS,
+					Conf.DBHOST,
+					Conf.DBPORT,
+					Conf.DBNAME,
+				),
+			),
+		)
+		return
+	}
+
+	//postgre
 	dbURL := fmt.Sprintf(
 		fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta",
 			Conf.DBHOST,
