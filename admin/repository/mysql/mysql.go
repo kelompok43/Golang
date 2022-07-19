@@ -30,6 +30,7 @@ func (ar adminRepository) Update(domain domain.Admin) (adminObj domain.Admin, er
 		"role":       rec.Role,
 		"email":      rec.Email,
 		"password":   rec.Password,
+		"created_at": rec.CreatedAt,
 		"updated_at": domain.UpdatedAt,
 	}).Error
 

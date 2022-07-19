@@ -6,11 +6,12 @@ services:
     image: jiran03/gymmembership:v1
     container_name: gms-1.0.0
     ports:
-      - 9600:9700
+      - 9700:9700
     depends_on:
       db:
         condition: service_started
     environment:
+      DB: postgre
       DB_NAME: gmsdb
       DB_HOST: db
       DB_USER: pg
