@@ -103,12 +103,7 @@ func (us userService) ChangePassword(id int, domain domain.User) (userObj domain
 		return userObj, err
 	}
 
-	userDetail, err := us.repository.GetDetail(id)
-
-	if err != nil {
-		return userObj, err
-	}
-
+	userDetail, _ := us.repository.GetDetail(id)
 	domain.ID = id
 	domain.PictureLink = userDetail.PictureLink
 	domain.Name = user.Name
@@ -119,8 +114,6 @@ func (us userService) ChangePassword(id int, domain domain.User) (userObj domain
 	domain.Address = userDetail.Address
 	domain.Status = user.Status
 	domain.CreatedAt = user.CreatedAt
-
-	fmt.Println("domain = ", domain)
 
 	if err != nil {
 		return userObj, err
