@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/kelompok43/Golang/hourmailer/domain"
@@ -19,15 +20,15 @@ var (
 
 // SendEmail implements domain.Repository
 func (ha hourmailerAPI) SendEmail(toAddress string, title string, message string, media string) (domain.Hourmailer, error) {
-	url := "https://hourmailer.p.rapidapi.com/send"
+	url := os.Getenv("HOURMAILER_URL")
 
-	payload := strings.NewReader(fmt.Sprintf("{\r\"toAddress\": \"%s\",\r\"title\": \"%s\",\r\"message\": \"<p><img alt=picture width=200 src=%s /></p> %s\"\r}", toAddress, title, media, message))
+	payload := strings.NewReader(fmt.Sprintf("{\r\"toAddress\": \"%s\",\r\"title\": \"%s\",\r\"message\": \"<h3>%s</h3><p><img alt=picture width=200 src=%s /></p> %s\"\r}", toAddress, title, title, media, message))
 
 	req, _ := http.NewRequest("POST", url, payload)
 
 	req.Header.Add("content-type", "application/json")
-	req.Header.Add("X-RapidAPI-Key", "531f7adc42msha9bdbd410bfc903p13cc07jsnf1ffc381bb61")
-	req.Header.Add("X-RapidAPI-Host", "hourmailer.p.rapidapi.com")
+	req.Header.Add("X-RapidAPI-Key", os.Getenv("HOURMAILER_API_KEY"))
+	req.Header.Add("X-RapidAPI-Host", os.Getenv("HOURMAILER_API_HOST"))
 
 	res, err := ha.httpClient.Do(req)
 
