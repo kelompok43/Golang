@@ -52,10 +52,10 @@ func main() {
 	authMiddleware.LogMiddlewares(e)
 	cJWT := configJWT.Init()
 
-	// member := os.Getenv("USER_STATUS_MEMBER")
+	// member := middleware.JWTWithConfig(cJWT) os.Getenv("USER_STATUS_MEMBER")
 	// notMember := os.Getenv("USER_STATUS_NOT_MEMBER")
-	// superAdmin := os.Getenv("SUPER_ADMIN")
-	// operationalAdmin := os.Getenv("OPERATIONAL_ADMIN")
+	// superAdmin := os.Getenv("ADMIN_STATUS_SUPER_ADMIN")
+	// operationalAdmin := os.Getenv("ADMIN_STATUS_OPERATIONAL_ADMIN")
 
 	userGroup := e.Group("/user")
 	userGroup.GET("", user.GetAllData, middleware.JWTWithConfig(cJWT))
